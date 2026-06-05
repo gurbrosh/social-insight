@@ -1,0 +1,39 @@
+# Git remotes — GitHub only (not CrunchyCone)
+
+This project is hosted on **GitHub**, not CrunchyCone GitLab.
+
+## Canonical remote
+
+| Remote | URL | Use |
+|--------|-----|-----|
+| `origin` | `git@github.com:gurbrosh/social-insight.git` | **Only** remote for push and pull |
+
+There is **no** `crunchycone` remote. Do not add `git.crunchycone.dev` remotes.
+
+## Agent rules (mandatory)
+
+1. **Push only to GitHub:** `git push origin <branch>` or `git push` (default is `origin`).
+2. **Never** run `git push crunchycone`, `git.crunchycone.dev`, or CrunchyCone CLI deploy/git commands unless the user explicitly asks to re-link CrunchyCone.
+3. **Never** suggest committing or pushing to CrunchyCone GitLab.
+4. Before any push, verify: `git remote -v` shows only `origin` → `github.com/gurbrosh/social-insight`.
+5. If the user asks to "push" or "commit to gitHub", use `origin` only.
+
+## User workflow
+
+```bash
+git status
+git add ...
+git commit -m "..."
+git push origin main   # or: git push  (pushDefault = origin)
+```
+
+## Do not use for this project
+
+- `npx crunchycone-cli` project link / push / deploy (legacy platform)
+- `git remote add crunchycone ...`
+- `git push crunchycone`
+
+## Secrets and large files
+
+- Never commit `.env` or `DISCORD_BOT_TOKEN`
+- Never commit `prisma/db/*.db`, `backups/`, or other large SQLite files (see `.gitignore`)
