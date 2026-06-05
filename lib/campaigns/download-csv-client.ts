@@ -1,8 +1,16 @@
 import {
   buildCampaignPhase1CsvContent,
-  exclusionIdsToLabels,
+  exclusionIdsToLabels as phase1ExclusionIdsToLabels,
 } from "./build-campaign-phase1-csv";
-import type { CampaignCandidatePreviewRow, CampaignExclusionCriterionId } from "./types";
+import {
+  buildEnrichedCampaignCsvContent,
+  exclusionIdsToLabels as enrichedExclusionIdsToLabels,
+} from "./build-enriched-campaign-csv";
+import type {
+  CampaignCandidatePreviewRow,
+  CampaignEnrichedCandidateRow,
+  CampaignExclusionCriterionId,
+} from "./types";
 
 export function downloadCampaignPhase1CsvClient(
   rows: CampaignCandidatePreviewRow[],
@@ -10,7 +18,7 @@ export function downloadCampaignPhase1CsvClient(
   selectedExclusionIds?: readonly CampaignExclusionCriterionId[]
 ): void {
   const labels = selectedExclusionIds?.length
-    ? exclusionIdsToLabels(selectedExclusionIds)
+    ? phase1ExclusionIdsToLabels(selectedExclusionIds)
     : undefined;
   const content = buildCampaignPhase1CsvContent(rows, { exclusionLabels: labels });
   const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
@@ -30,4 +38,24 @@ export function downloadCampaignSourceCsvClient(
   filenamePrefix: string
 ): void {
   downloadCampaignPhase1CsvClient(rows, filenamePrefix);
+}
+
+export function downloadCampaignEnrichedCsvClient(
+  rows: CampaignEnrichedCandidateRow[],
+  filenamePrefix: string,
+  selectedExclusionIds?: readonly CampaignExclusionCriterionId[]
+): void {
+  const labels = selectedExclusionIds?.length
+    ? enrichedExclusionIdsToLabels(selectedExclusionIds)
+    : undefined;
+  const content = buildEnrichedCampaignCsvContent(rows, { exclusionLabels: labels });
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${filenamePrefix}_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

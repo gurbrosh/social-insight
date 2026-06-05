@@ -144,6 +144,7 @@ export type CampaignCandidatePreviewRow = CampaignCandidate & {
     | "company_search"
     | "post_based"
     | "profile_enrichment"
+    | "inferred_text_weak"
     | "unavailable";
   open_to_work_status_detail?: string;
   classification?: ProspectClassification;
@@ -151,6 +152,89 @@ export type CampaignCandidatePreviewRow = CampaignCandidate & {
 
 /** @deprecated Use CampaignCandidatePreviewRow */
 export type CampaignPostBasedPreviewRow = CampaignCandidatePreviewRow;
+
+export type CampaignEnrichmentStatus =
+  | "success"
+  | "failed"
+  | "not_found"
+  | "parse_error"
+  | "skipped_phase1_disqualified"
+  | "pending";
+
+export type CampaignEnrichedEmploymentSource =
+  | "profile_experience_current"
+  | "current_positions"
+  | "actor_current_fields"
+  | "prior_candidate_source"
+  | "headline_fallback"
+  | "unknown";
+
+/** Phase 1 fields preserved at enrichment time (CSV uses phase1_* column names). */
+export type CampaignPhase1Snapshot = {
+  phase1_decision?: Phase1Decision;
+  phase1_status?: string;
+  phase1_role_categories?: string;
+  phase1_function_tags?: string;
+  phase1_profile_flags?: string;
+  phase1_matched_exclusion_criteria?: string;
+  phase1_non_excluded_signals?: string;
+  phase1_dominant_exclusion?: string;
+  phase1_exclusion_reason?: string;
+  phase1_why_continued_reason?: string;
+  phase1_classification_confidence?: number;
+  phase1_classification_needs_review?: boolean;
+  phase1_open_to_work_detection?: CampaignCandidatePreviewRow["open_to_work_detection"];
+  phase1_open_to_work_source?: CampaignCandidatePreviewRow["open_to_work_source"];
+};
+
+export type CampaignEnrichedCandidateRow = CampaignCandidatePreviewRow &
+  CampaignPhase1Snapshot & {
+    name: string;
+    enrichment_status: CampaignEnrichmentStatus;
+    enrichment_error?: string | null;
+    enriched_at?: string | null;
+    enrichment_actor: "full_linkedin_profile";
+    enrichment_source: "apify_profile_scraper";
+    enriched_current_title?: string | null;
+    enriched_current_company?: string | null;
+    enriched_current_company_linkedin_url?: string | null;
+    enriched_employment_source: CampaignEnrichedEmploymentSource;
+    enriched_employment_confidence: number;
+    enriched_current_roles?: string;
+    enriched_current_roles_json?: string;
+    experience_count: number;
+    current_experience_count: number;
+    past_companies?: string;
+    past_titles?: string;
+    about?: string | null;
+    skills?: string;
+    email?: string | null;
+    mobile?: string | null;
+    contact_source?: string | null;
+    open_to_work_raw_value?: string | null;
+    enriched_role_categories?: string;
+    enriched_function_tags?: string;
+    enriched_profile_flags?: string;
+    enriched_classification_confidence?: number;
+    enriched_classification_needs_review?: boolean;
+    post_enrichment_exclusion_matches?: string;
+    post_enrichment_would_disqualify?: boolean;
+    post_enrichment_reason?: string | null;
+  };
+
+export type CampaignEnrichmentRunStats = {
+  attempted: number;
+  successful: number;
+  failed: number;
+  notFound: number;
+  skippedPhase1Disqualified: number;
+  withExperienceData: number;
+  withEmail: number;
+  withMobile: number;
+  openToWorkDetected: number;
+  openToWorkStillUnknown: number;
+  postEnrichmentWouldDisqualify: number;
+};
 
 export type CampaignPrerequisiteResult =
   | { ok: true }

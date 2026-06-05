@@ -16,6 +16,7 @@
     "enrich:linkedin-employment": "tsx scripts/enrich-linkedin-profile-employment.ts",
     "proof:linkedin-experience": "tsx scripts/proof-linkedin-profile-experience-source.ts",
     "campaign:phase2-validate": "tsx scripts/campaign-phase2-company-search-validation.ts",
+    "campaign:phase3-validate": "tsx scripts/campaign-phase3-profile-enrichment-validation.ts",
     "classify:test-golden": "tsx lib/prospect-intelligence/eval/run-golden.ts",
     "classify:test-all": "npm run classify:test-golden -- --soft && npm run test:prospect-classify",
     "reset": "node scripts/reset.js",

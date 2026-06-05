@@ -28,12 +28,20 @@ import { useToast } from "@/hooks/use-toast";
 import { listCampaignExclusionGroups } from "@/lib/campaigns/campaign-criteria-mapping";
 import { listCampaignCompanyRoleGroups } from "@/lib/campaigns/company-role-search-mapping";
 import type { CampaignCompanyRoleGroupId } from "@/lib/campaigns/company-role-search-mapping";
-import { V1_SYNC_ENRICHMENT_CAP } from "@/lib/campaigns/constants";
-import { downloadCampaignPhase1CsvClient } from "@/lib/campaigns/download-csv-client";
+import {
+  CAMPAIGN_PHASE3_DEFAULT_ENRICHMENT_LIMIT,
+  CAMPAIGN_PHASE3_MAX_ENRICHMENT_LIMIT,
+} from "@/lib/campaigns/constants";
+import {
+  downloadCampaignEnrichedCsvClient,
+  downloadCampaignPhase1CsvClient,
+} from "@/lib/campaigns/download-csv-client";
 import { mergeCampaignCandidates } from "@/lib/campaigns/merge-campaign-candidates";
 import { computePhase1SummaryCounts } from "@/lib/campaigns/phase1-summary";
 import type {
   CampaignCandidatePreviewRow,
+  CampaignEnrichedCandidateRow,
+  CampaignEnrichmentRunStats,
   CampaignExclusionCriterionId,
   CampaignMergeStats,
   CampaignPostBasedCollectStats,
@@ -90,6 +98,13 @@ export function EmailCampaignsPanel({ projectId, projectName }: Props) {
   const [loadingSource, setLoadingSource] = useState(false);
   const [loadingCompanySearch, setLoadingCompanySearch] = useState(false);
   const [loadingPhase1, setLoadingPhase1] = useState(false);
+  const [enrichedCandidates, setEnrichedCandidates] = useState<
+    CampaignEnrichedCandidateRow[] | null
+  >(null);
+  const [enrichmentStats, setEnrichmentStats] = useState<CampaignEnrichmentRunStats | null>(
+    null
+  );
+  const [loadingEnrichment, setLoadingEnrichment] = useState(false);
   const [prereqLoading, setPrereqLoading] = useState(false);
 
   const sourceParamsKey = useMemo(
@@ -126,6 +141,8 @@ export function EmailCampaignsPanel({ projectId, projectName }: Props) {
   useEffect(() => {
     setPhase1Candidates(null);
     setPhase1Limited(false);
+    setEnrichedCandidates(null);
+    setEnrichmentStats(null);
   }, [exclusionsKey]);
 
   useEffect(() => {
@@ -154,6 +171,12 @@ export function EmailCampaignsPanel({ projectId, projectName }: Props) {
     () => (phase1Candidates ? computePhase1SummaryCounts(phase1Candidates) : null),
     [phase1Candidates]
   );
+
+  const continuingCount = phase1Summary?.continuingToLaterEnrichment ?? 0;
+  const alreadyEnrichedCount = enrichedCandidates?.filter(
+    (r) => r.enrichment_status === "success"
+  ).length ?? 0;
+  const enrichmentPendingCount = Math.max(0, continuingCount - alreadyEnrichedCount);
 
   const toggleExclusion = useCallback((id: CampaignExclusionCriterionId, checked: boolean) => {
     setSelectedExclusions((prev) => {
@@ -306,6 +329,8 @@ export function EmailCampaignsPanel({ projectId, projectName }: Props) {
       }
       setPhase1Candidates(data.candidates ?? []);
       setPhase1Limited(Boolean(data.phase1Limited));
+      setEnrichedCandidates(null);
+      setEnrichmentStats(null);
       toast({
         title: "Phase 1 complete",
         description: `Deterministic qualification applied to ${data.candidates?.length ?? 0} row(s).`,
@@ -319,6 +344,75 @@ export function EmailCampaignsPanel({ projectId, projectName }: Props) {
     } finally {
       setLoadingPhase1(false);
     }
+  };
+
+  const runProfileEnrichment = async () => {
+    if (!projectId || !phase1Candidates?.length) return;
+
+    if (continuingCount > CAMPAIGN_PHASE3_MAX_ENRICHMENT_LIMIT) {
+      toast({
+        title: "Too many candidates",
+        description: `Phase 3 supports up to ${CAMPAIGN_PHASE3_MAX_ENRICHMENT_LIMIT} profile enrichments at a time. Reduce the candidate list or run a smaller batch.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `This will fetch full LinkedIn profiles for ${Math.min(continuingCount, CAMPAIGN_PHASE3_DEFAULT_ENRICHMENT_LIMIT)} candidate(s) using Apify and may incur cost. Continue?`
+      )
+    ) {
+      return;
+    }
+
+    setLoadingEnrichment(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/campaigns/enrich-profiles`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          candidates: phase1Candidates,
+          selectedExclusionIds: [...selectedExclusions],
+          limit: CAMPAIGN_PHASE3_DEFAULT_ENRICHMENT_LIMIT,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Profile enrichment failed");
+      }
+      setEnrichedCandidates(data.enrichedCandidates ?? []);
+      setEnrichmentStats(data.stats ?? null);
+      toast({
+        title: "Phase 3 enrichment complete",
+        description: `${data.successful ?? 0} successful, ${data.failed ?? 0} failed, ${data.notFound ?? 0} not found.`,
+      });
+    } catch (e) {
+      toast({
+        title: "Profile enrichment failed",
+        description: e instanceof Error ? e.message : String(e),
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingEnrichment(false);
+    }
+  };
+
+  const downloadEnrichedCsv = () => {
+    const rows = enrichedCandidates ?? [];
+    if (rows.length === 0) {
+      toast({
+        title: "Nothing to export",
+        description: "Run Phase 3 enrichment first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    downloadCampaignEnrichedCsvClient(rows, "campaign_enriched", [...selectedExclusions]);
+    toast({
+      title: "Enriched CSV downloaded",
+      description: `${rows.length} row(s) from this enrichment run.`,
+    });
   };
 
   const downloadPhase1Csv = () => {
@@ -349,8 +443,8 @@ export function EmailCampaignsPanel({ projectId, projectName }: Props) {
       <p className="text-sm text-muted-foreground">
         <strong>Campaigns</strong> build CSV-first qualification lists for{" "}
         <strong>{projectName}</strong>: load sources, choose exclusions, run Phase 1 deterministic
-        screening, then export. Profile enrichment and semantic qualification are later phases — not
-        available here yet.
+        screening, enrich continuing candidates (Phase 3), then export. Semantic LLM qualification
+        and outreach emails are later phases.
       </p>
 
       {!postBasedReady && !prereqLoading && (
@@ -729,12 +823,128 @@ export function EmailCampaignsPanel({ projectId, projectName }: Props) {
                 )}
                 </>
               )}
-              <p className="text-xs text-muted-foreground">
-                Full end-to-end sync cap (enrichment + semantic LLM) will be {V1_SYNC_ENRICHMENT_CAP}{" "}
-                candidates in a later phase.
-              </p>
             </CardContent>
           </Card>
+
+          {phase1Candidates && phase1Candidates.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Phase 3 — Enrich continuing candidates</CardTitle>
+                <CardDescription>
+                  Fetches full LinkedIn profiles via Apify for Phase 1 continuing candidates only.
+                  Does not run LLM qualification, generate emails, or write campaign history.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {continuingCount > 0 && (
+                  <p className="text-xs text-muted-foreground rounded-md border border-amber-500/30 bg-amber-500/5 p-3">
+                    This will fetch full LinkedIn profiles for up to{" "}
+                    {Math.min(continuingCount, CAMPAIGN_PHASE3_DEFAULT_ENRICHMENT_LIMIT)} continuing
+                    candidate(s) using Apify and may incur cost.
+                  </p>
+                )}
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+                  <div className="rounded-md border p-3">
+                    <p className="text-muted-foreground">Total loaded</p>
+                    <p className="text-2xl font-semibold">{phase1Summary?.total ?? 0}</p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <p className="text-muted-foreground">Phase 1 disqualified</p>
+                    <p className="text-2xl font-semibold">
+                      {phase1Summary?.phase1Disqualified ?? 0}
+                    </p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <p className="text-muted-foreground">Continuing to enrichment</p>
+                    <p className="text-2xl font-semibold">{continuingCount}</p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <p className="text-muted-foreground">Unknown continuing</p>
+                    <p className="text-2xl font-semibold">
+                      {phase1Summary?.unknownContinuing ?? 0}
+                    </p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <p className="text-muted-foreground">Already enriched</p>
+                    <p className="text-2xl font-semibold">{alreadyEnrichedCount}</p>
+                  </div>
+                  <div className="rounded-md border p-3">
+                    <p className="text-muted-foreground">Enrichment pending</p>
+                    <p className="text-2xl font-semibold">{enrichmentPendingCount}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    disabled={
+                      continuingCount === 0 ||
+                      loadingEnrichment ||
+                      continuingCount > CAMPAIGN_PHASE3_MAX_ENRICHMENT_LIMIT
+                    }
+                    onClick={runProfileEnrichment}
+                  >
+                    <Play
+                      className={`mr-2 h-4 w-4 ${loadingEnrichment ? "animate-pulse" : ""}`}
+                    />
+                    Enrich continuing candidates
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!enrichedCandidates?.length}
+                    onClick={downloadEnrichedCsv}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download enriched CSV
+                  </Button>
+                </div>
+                {continuingCount > CAMPAIGN_PHASE3_MAX_ENRICHMENT_LIMIT && (
+                  <p className="text-xs text-destructive">
+                    Phase 3 supports up to {CAMPAIGN_PHASE3_MAX_ENRICHMENT_LIMIT} profile
+                    enrichments at a time. Reduce the candidate list or run a smaller batch.
+                  </p>
+                )}
+                {enrichmentStats && (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+                    <div className="rounded-md border p-3">
+                      <p className="text-muted-foreground">Attempted</p>
+                      <p className="text-xl font-semibold">{enrichmentStats.attempted}</p>
+                    </div>
+                    <div className="rounded-md border p-3">
+                      <p className="text-muted-foreground">Successful</p>
+                      <p className="text-xl font-semibold">{enrichmentStats.successful}</p>
+                    </div>
+                    <div className="rounded-md border p-3">
+                      <p className="text-muted-foreground">Failed</p>
+                      <p className="text-xl font-semibold">{enrichmentStats.failed}</p>
+                    </div>
+                    <div className="rounded-md border p-3">
+                      <p className="text-muted-foreground">With experience data</p>
+                      <p className="text-xl font-semibold">{enrichmentStats.withExperienceData}</p>
+                    </div>
+                    <div className="rounded-md border p-3">
+                      <p className="text-muted-foreground">Email found</p>
+                      <p className="text-xl font-semibold">{enrichmentStats.withEmail}</p>
+                    </div>
+                    <div className="rounded-md border p-3">
+                      <p className="text-muted-foreground">Mobile found</p>
+                      <p className="text-xl font-semibold">{enrichmentStats.withMobile}</p>
+                    </div>
+                    <div className="rounded-md border p-3">
+                      <p className="text-muted-foreground">Open to Work detected</p>
+                      <p className="text-xl font-semibold">{enrichmentStats.openToWorkDetected}</p>
+                    </div>
+                    <div className="rounded-md border p-3">
+                      <p className="text-muted-foreground">OTW still unknown</p>
+                      <p className="text-xl font-semibold">
+                        {enrichmentStats.openToWorkStillUnknown}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {phase1Candidates && phase1Candidates.length > 0 && (
             <Card>

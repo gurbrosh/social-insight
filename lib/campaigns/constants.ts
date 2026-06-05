@@ -27,3 +27,15 @@ export const APIFY_LINKEDIN_FULL_PROFILE_ACTOR_ID = "2SyF0bVxmgGr8IVCZ";
 /** Apify actor enum labels (not lowercase slugs). */
 export const APIFY_LINKEDIN_COMPANY_EMPLOYEES_PROFILE_SCRAPER_MODE_SHORT =
   "Short ($4 per 1k)" as const;
+
+/** Default sync cap for Phase 3 full-profile enrichment per run. */
+export const CAMPAIGN_PHASE3_DEFAULT_ENRICHMENT_LIMIT = 50;
+
+/** Hard cap for Phase 3 full-profile enrichment per run. */
+export const CAMPAIGN_PHASE3_MAX_ENRICHMENT_LIMIT = 100;
+
+export const CAMPAIGN_PHASE3_ENRICHMENT_ACTOR = "full_linkedin_profile" as const;
+export const CAMPAIGN_PHASE3_ENRICHMENT_SOURCE = "apify_profile_scraper" as const;
+
+export const APIFY_PROFILE_ENRICHMENT_NOT_CONFIGURED_MESSAGE =
+  "Apify is not configured. Add the required Apify token before running profile enrichment.";
