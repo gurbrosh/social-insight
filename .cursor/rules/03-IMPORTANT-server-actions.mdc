@@ -1,0 +1,461 @@
+---
+description: Server actions best practices and patterns
+globs: ["app/actions/**/*", "app/**/page.tsx", "app/**/layout.tsx", "components/**/*"]
+---
+
+# Server Actions Guidelines
+
+## Core Principles
+
+**Server Actions are the PRIMARY pattern** for data mutations, form submissions, and database operations in this project. API routes are reserved for specific use cases only.
+
+### When to Use Server Actions
+- ✅ Form submissions (auth, user management, data entry)
+- ✅ Database mutations (create, update, delete)
+- ✅ Admin operations (user/role management)
+- ✅ Any operation that needs cache revalidation
+- ✅ Operations that redirect after completion
+
+### When to Use API Routes
+- ✅ External webhook endpoints
+- ✅ Cookie-setting operations (magic links, OAuth)
+- ✅ File uploads to external storage
+- ✅ Third-party integrations
+- ✅ Operations needing custom headers
+
+## Server Action Structure
+
+### Standard Server Action Pattern
+```typescript
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { getCurrentUser, isAdmin } from '@/lib/auth/permissions'
+import { prisma } from '@/lib/prisma'
+
+export async function actionName(formData: FormData) {
+  // 1. Authentication (required for protected actions)
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect('/auth/signin')
+  }
+
+  // 2. Authorization (if needed)
+  if (!(await isAdmin(currentUser.id))) {
+    throw new Error('Admin access required')
+  }
+
+  // 3. Input validation
+  const email = formData.get('email') as string
+  if (!email || !email.includes('@')) {
+    throw new Error('Invalid email address')
+  }
+
+  // 4. Database operation (use transactions for multi-table)
+  try {
+    const result = await prisma.user.create({
+      data: { email, /* other fields */ }
+    })
+
+    // 5. Cache revalidation (CRITICAL - UI won't update without this)
+    revalidatePath('/admin/users')
+    revalidatePath('/admin')
+    
+    // 6. Return success or redirect
+    return { success: true, data: result }
+    // OR redirect('/success-page')
+  } catch (error) {
+    throw new Error('Operation failed')
+  }
+}
+```
+
+### Multi-Step Transaction Pattern
+```typescript
+export async function createUserWithProfileAction(formData: FormData) {
+  const currentUser = await getCurrentUser()
+  if (!currentUser || !(await isAdmin(currentUser.id))) {
+    throw new Error('Unauthorized')
+  }
+
+  const email = formData.get('email') as string
+  const firstName = formData.get('firstName') as string
+  const lastName = formData.get('lastName') as string
+
+  // Use transaction for multi-table operations
+  const user = await prisma.$transaction(async (tx) => {
+    // Create user
+    const newUser = await tx.user.create({
+      data: { email, password: hashedPassword }
+    })
+
+    // Create profile
+    await tx.userProfile.create({
+      data: { 
+        user_id: newUser.id, 
+        first_name: firstName, 
+        last_name: lastName 
+      }
+    })
+
+    // Assign default role
+    const userRole = await tx.role.findUnique({ 
+      where: { name: "user" } 
+    })
+    if (userRole) {
+      await tx.userRole.create({
+        data: { user_id: newUser.id, role_id: userRole.id }
+      })
+    }
+
+    return newUser
+  })
+
+  revalidatePath('/admin/users')
+  revalidatePath('/admin')
+  
+  return { success: true, user }
+}
+```
+
+## Form Integration Patterns
+
+### Basic Form Action
+```typescript
+// Component
+export function CreateUserForm() {
+  return (
+    <form action={createUserAction} className="space-y-4">
+      <input name="email" type="email" required />
+      <input name="firstName" type="text" required />
+      <button type="submit">Create User</button>
+    </form>
+  )
+}
+```
+
+### Form with Client-Side State Management
+```typescript
+'use client'
+
+import { useFormState } from 'react-dom'
+import { createUserAction } from '@/app/actions/users'
+
+export function CreateUserForm() {
+  const [state, formAction] = useFormState(createUserAction, { 
+    success: false, 
+    error: null 
+  })
+
+  return (
+    <form action={formAction} className="space-y-4">
+      <input name="email" type="email" required />
+      <input name="firstName" type="text" required />
+      
+      {state.error && (
+        <div className="text-red-500">{state.error}</div>
+      )}
+      
+      {state.success && (
+        <div className="text-green-500">User created successfully!</div>
+      )}
+      
+      <button type="submit">Create User</button>
+    </form>
+  )
+}
+```
+
+### Programmatic Server Action Calls
+```typescript
+'use client'
+
+import { useTransition } from 'react'
+import { deleteUserAction } from '@/app/actions/users'
+
+export function DeleteUserButton({ userId }: { userId: string }) {
+  const [isPending, startTransition] = useTransition()
+
+  const handleDelete = () => {
+    if (confirm('Are you sure?')) {
+      startTransition(async () => {
+        await deleteUserAction(userId)
+      })
+    }
+  }
+
+  return (
+    <button 
+      onClick={handleDelete} 
+      disabled={isPending}
+      className="bg-red-500 text-white px-4 py-2"
+    >
+      {isPending ? 'Deleting...' : 'Delete User'}
+    </button>
+  )
+}
+```
+
+## Authentication Patterns
+
+### Public Server Actions (No Auth Required)
+```typescript
+export async function signUpAction(formData: FormData) {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+
+  // Validation
+  if (!email || !password) {
+    throw new Error('Email and password required')
+  }
+
+  // Create user (no auth check needed)
+  const hashedPassword = await hashPassword(password)
+  const user = await prisma.user.create({
+    data: { email, password: hashedPassword }
+  })
+
+  // Send verification email
+  const token = generateToken(user.id, "verification")
+  await sendEmail({
+    to: email,
+    subject: "Verify your email",
+    html: getVerificationEmailTemplate(token, process.env.NEXT_PUBLIC_APP_URL!)
+  })
+
+  redirect('/auth/signin?message=Check your email')
+}
+```
+
+### Protected Server Actions (Auth Required)
+```typescript
+export async function updateProfileAction(formData: FormData) {
+  // Required auth check
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect('/auth/signin')
+  }
+
+  const firstName = formData.get('firstName') as string
+  const lastName = formData.get('lastName') as string
+
+  await prisma.userProfile.upsert({
+    where: { user_id: currentUser.id },
+    update: { first_name: firstName, last_name: lastName },
+    create: { 
+      user_id: currentUser.id, 
+      first_name: firstName, 
+      last_name: lastName 
+    }
+  })
+
+  revalidatePath('/profile')
+  return { success: true }
+}
+```
+
+### Admin-Only Server Actions
+```typescript
+export async function adminDeleteUserAction(userId: string) {
+  // Auth + Admin check
+  const currentUser = await getCurrentUser()
+  if (!currentUser || !(await isAdmin(currentUser.id))) {
+    throw new Error('Admin access required')
+  }
+
+  // Self-protection
+  if (userId === currentUser.id) {
+    throw new Error('Cannot delete your own account')
+  }
+
+  // Soft delete
+  await prisma.user.update({
+    where: { id: userId },
+    data: { deleted_at: new Date() }
+  })
+
+  revalidatePath('/admin/users')
+  revalidatePath('/admin')
+}
+```
+
+## Revalidation Strategies
+
+### Path-Based Revalidation
+```typescript
+// Revalidate specific pages
+revalidatePath('/admin/users')           // User list page
+revalidatePath('/admin')                 // Dashboard
+revalidatePath(`/admin/users/${userId}`) // Specific user page
+revalidatePath('/profile')               // User profile
+```
+
+### Tag-Based Revalidation (Advanced)
+```typescript
+// For complex caching scenarios
+revalidateTag('users')
+revalidateTag('admin-dashboard')
+revalidateTag('user-roles')
+```
+
+### Layout Revalidation
+```typescript
+// Revalidate entire layout (use sparingly)
+revalidatePath('/admin', 'layout')
+```
+
+## Error Handling Patterns
+
+### Simple Error Handling
+```typescript
+export async function simpleAction(formData: FormData) {
+  try {
+    // Operation
+    const result = await prisma.user.create({ data })
+    revalidatePath('/users')
+    return { success: true, data: result }
+  } catch (error) {
+    throw new Error('Failed to create user')
+  }
+}
+```
+
+### Detailed Error Handling with useFormState
+```typescript
+export async function detailedAction(
+  prevState: any, 
+  formData: FormData
+) {
+  try {
+    // Validation
+    const email = formData.get('email') as string
+    if (!email) {
+      return { success: false, error: 'Email is required' }
+    }
+
+    // Operation
+    const user = await prisma.user.create({ data: { email } })
+    
+    revalidatePath('/users')
+    return { success: true, data: user, error: null }
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        return { success: false, error: 'Email already exists' }
+      }
+    }
+    return { success: false, error: 'An unexpected error occurred' }
+  }
+}
+```
+
+## Anti-Patterns to Avoid
+
+### ❌ DON'T: Mix fetch() with Server Actions
+```typescript
+// Wrong - mixing client fetch with server actions
+const handleSubmit = async (formData) => {
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(formData)
+  })
+}
+```
+
+### ❌ DON'T: Forget revalidatePath()
+```typescript
+// Wrong - UI won't update
+export async function createUser(formData: FormData) {
+  await prisma.user.create({ data })
+  // Missing: revalidatePath('/users')
+}
+```
+
+### ❌ DON'T: Use middleware for auth with Server Actions
+```typescript
+// Wrong - use direct auth checks instead
+// middleware.ts is not needed for Server Action auth
+```
+
+### ❌ DON'T: Call Server Actions in useEffect
+```typescript
+// Wrong - Server Actions aren't for side effects
+useEffect(() => {
+  serverAction() // Don't do this
+}, [])
+```
+
+### ❌ DON'T: Use Server Actions for GET operations
+```typescript
+// Wrong - use Server Components for data fetching
+export async function fetchUsers() {
+  return await prisma.user.findMany()
+}
+```
+
+## Performance Considerations
+
+### Minimize Revalidations
+```typescript
+// Good - targeted revalidation
+revalidatePath('/admin/users')
+
+// Avoid - broad revalidation
+revalidatePath('/', 'layout')
+```
+
+### Batch Operations
+```typescript
+// Good - single transaction
+await prisma.$transaction([
+  prisma.user.create(userData),
+  prisma.userProfile.create(profileData)
+])
+
+// Avoid - multiple separate calls
+await prisma.user.create(userData)
+await prisma.userProfile.create(profileData)
+```
+
+### Conditional Revalidation
+```typescript
+export async function conditionalUpdate(formData: FormData) {
+  const result = await prisma.user.update({ data })
+  
+  // Only revalidate if something actually changed
+  if (result) {
+    revalidatePath('/users')
+  }
+  
+  return result
+}
+```
+
+## Testing Server Actions
+
+### Unit Testing Pattern
+```typescript
+// __tests__/actions/users.test.ts
+import { createUserAction } from '@/app/actions/users'
+
+describe('createUserAction', () => {
+  it('should create user successfully', async () => {
+    const formData = new FormData()
+    formData.append('email', 'test@example.com')
+    
+    const result = await createUserAction(formData)
+    expect(result.success).toBe(true)
+  })
+})
+```
+
+## Summary
+
+1. **Use Server Actions** for all data mutations and form submissions
+2. **Always authenticate** in protected actions (don't use middleware)
+3. **Always revalidate** affected paths after mutations
+4. **Use transactions** for multi-table operations
+5. **Handle errors** appropriately for user feedback
+6. **Don't mix patterns** - stay consistent with Server Actions
+7. **Test thoroughly** including auth, validation, and error cases

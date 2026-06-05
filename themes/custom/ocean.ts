@@ -1,0 +1,32 @@
+import { Theme } from "../types";
+
+export const oceanTheme: Theme = {
+  name: "ocean",
+  label: "Ocean Blue",
+  description: "Deep sea vibes",
+  category: "custom",
+  icon: "Waves",
+  emoji: "🌊",
+  radius: "0.5rem",
+  colors: {
+    background: "210 100% 98%",
+    foreground: "210 100% 10%",
+    card: "210 50% 100%",
+    cardForeground: "210 100% 10%",
+    popover: "210 50% 100%",
+    popoverForeground: "210 100% 10%",
+    primary: "200 100% 50%",
+    primaryForeground: "210 100% 98%",
+    secondary: "190 60% 85%",
+    secondaryForeground: "210 100% 10%",
+    muted: "200 30% 90%",
+    mutedForeground: "210 50% 40%",
+    accent: "190 80% 70%",
+    accentForeground: "210 100% 10%",
+    destructive: "350 80% 55%",
+    destructiveForeground: "210 100% 98%",
+    border: "210 40% 85%",
+    input: "210 40% 85%",
+    ring: "200 100% 50%",
+  },
+};

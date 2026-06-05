@@ -1,0 +1,2521 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  email          String    @unique
+  name           String? // Added for Auth.js compatibility
+  image          String? // Added for Auth.js compatibility
+  emailVerified  DateTime? // Added for Auth.js compatibility
+  password       String?
+  last_signed_in DateTime?
+
+  profile UserProfile?
+  roles   UserRole[]
+
+  // Auth.js relationships
+  accounts Account[]
+  sessions Session[]
+
+  // Social listening relationships
+  projects       Project[]
+  orchestrations Orchestration[]
+  recipes        OrchestrationRecipe[]
+
+  @@index([email])
+  @@index([deleted_at])
+}
+
+model UserProfile {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  user_id    String  @unique
+  first_name String?
+  last_name  String?
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([deleted_at])
+}
+
+model Role {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  name String @unique
+
+  users UserRole[]
+
+  @@index([name])
+  @@index([deleted_at])
+}
+
+model UserRole {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  user_id String
+  role_id String
+
+  user User @relation(fields: [user_id], references: [id])
+  role Role @relation(fields: [role_id], references: [id])
+
+  @@unique([user_id, role_id])
+  @@index([user_id])
+  @@index([role_id])
+  @@index([deleted_at])
+}
+
+// ============================================
+// Auth.js Required Models
+// ============================================
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  refresh_token_expires_in Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default("")
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================
+// Social Listening Tool Models
+// ============================================
+
+enum AnalysisProfile {
+  full
+  minimal
+}
+
+model Project {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  name             String
+  description      String?
+  monitoring_focus String? // What the user is specifically looking for/monitoring in this project
+  user_id          String
+
+  // Scheduling
+  schedule_enabled  Boolean   @default(false)
+  schedule_cron     String? // Cron expression for scheduling
+  schedule_timezone String?   @default("UTC")
+  last_scheduled_at DateTime?
+  next_scheduled_at DateTime?
+
+  // Engagement Thresholds (per platform, for filtering posts saved to DownstreamPost)
+  linkedin_engagement_threshold Int? // Minimum engagement score (likes + comments + shares) for LinkedIn posts. Default: 30
+  facebook_engagement_threshold Int? // Minimum engagement score for Facebook posts. Default: 20
+  twitter_engagement_threshold  Int? // Minimum engagement score for Twitter/X posts. Default: null (no threshold)
+  reddit_engagement_threshold   Int? // Minimum engagement score for Reddit posts. Default: null (no threshold)
+  discord_engagement_threshold  Int? // Minimum engagement score for Discord posts. Default: null (no threshold)
+
+  // Relevance: false = keywords/brands qualify independently; true = keywords must focus on a brand
+  require_keywords_with_brands Boolean @default(false)
+
+  /// Task-based analysis: full pipeline vs minimal (sentiment + themes + brand only).
+  analysis_profile AnalysisProfile @default(full)
+  /// Optional cap on recent posts when freezing membership for ad-hoc runs (null = all posts).
+  analysis_sample_post_limit Int?
+
+  keywords         ProjectKeyword[]
+  brands           ProjectBrand[]
+  brandSources     ProjectBrandSource[] @relation("ProjectBrandSources")
+  sources          ProjectSource[]
+  profiles         ProjectProfile[]
+  themes           ProjectTheme[]
+  jobs             ScrapeJob[]
+  posts            Post[]
+  downstreamPosts  DownstreamPost[]
+  postNews         PostNews[]
+  networkAnalysis  NetworkAnalysis[]
+  chatterAnalysis  ChatterAnalysis[]
+  themesAnalysis   ThemesAnalysis[]
+  brandAnalysis    BrandAnalysis[]
+  conversations    Conversation[]
+  analysisProgress AnalysisProgress?
+  blogAnalysisRuns BlogAnalysisRun[]
+  blogNewsAnalyses BlogNewsAnalysis[]
+  hnStoryAnalyses  HnStoryAnalysis[]
+  blogPosts        BlogPost[]
+  taskRuns         TaskRun[]
+  responseObjectives ResponseObjective[]
+  myProductDocuments ProjectMyProductDocument[]
+
+  /// Display / marketing name for the product (My Product settings).
+  my_product_name String?
+  /// Free-text: what the product is focused on (My Product settings).
+  my_product_focus_text String?
+  /// JSON array of URL strings.
+  my_product_reference_urls String?
+  /// JSON: highLevelDescription, keyInnovativeIdeas, differentiators, intendedClients.
+  my_product_summary_json String?
+  my_product_summary_updated_at DateTime?
+
+  user User @relation(fields: [user_id], references: [id])
+
+  prospectIdentities           ProspectIdentity[]
+  prospectCandidates           ProspectCandidate[]
+  prospectRoutingRules         ProspectRoutingRule[]
+  competitorLists              CompetitorList[]
+  outreachTemplates            OutreachTemplate[]
+  prospectIntelligenceSettings ProspectIntelligenceSettings?
+
+  @@index([user_id])
+  @@index([deleted_at])
+  @@index([next_scheduled_at])
+}
+
+model ProjectMyProductDocument {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id        String
+  storage_key       String
+  original_filename String
+  content_type      String?
+  byte_size         Int?
+
+  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@index([project_id])
+  @@index([deleted_at])
+}
+
+model ProjectKeyword {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id String
+  keyword    String
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([deleted_at])
+}
+
+model ProjectBrand {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id  String
+  brand_name  String
+  is_selected Boolean @default(true)
+  brand_id    String? // Optional foreign key to Brand Directory
+
+  project Project @relation(fields: [project_id], references: [id])
+  brand   Brand?  @relation(fields: [brand_id], references: [id])
+
+  @@index([project_id])
+  @@index([brand_id])
+  @@index([deleted_at])
+}
+
+model ProjectBrandSource {
+  id             String            @id @default("")
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+  deleted_at     DateTime?
+
+  project_id     String
+  brand_id       String
+  link_type      LinkType
+  platform       InfluencerPlatform?
+  source_category SourceCategory?
+  url            String
+  channel_name   String?
+
+  project Project @relation("ProjectBrandSources", fields: [project_id], references: [id])
+  brand   Brand   @relation("BrandProjectSources", fields: [brand_id], references: [id])
+
+  @@unique([project_id, brand_id, url])
+  @@index([project_id])
+  @@index([brand_id])
+  @@index([deleted_at])
+}
+
+// ============================================
+// Brand Directory Models
+// ============================================
+
+enum BrandStage {
+  ESTABLISHED
+  EMERGING
+  SMALL
+}
+
+enum LinkType {
+  REDDIT
+  DISCORD
+  INFLUENCER
+  OTHER_SOURCE
+}
+
+enum SourceCategory {
+  NEWS_OUTLET
+  BLOG
+  PODCAST
+}
+
+enum InfluencerPlatform {
+  TWITTER
+  LINKEDIN
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+  BLUESKY
+  YOUTUBE
+}
+
+model BusinessTaxonomy {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  category        String // Top-level category (e.g., "Technology")
+  subcategory     String // Mid-level category (e.g., "Software - Application (Horizontal)")
+  sub_subcategory String // Specific category (e.g., "CRM & Sales")
+
+  brands Brand[]
+  redditLinks TaxonomyRedditLink[]
+  influencerLinks TaxonomyInfluencerLink[]
+  otherSourceLinks TaxonomyOtherSourceLink[]
+
+  @@unique([category, subcategory, sub_subcategory])
+  @@index([category, subcategory, sub_subcategory])
+  @@index([deleted_at])
+}
+
+model TaxonomyRedditLink {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  // Hierarchical path - null values indicate higher level
+  // Category level: category set, subcategory=null, sub_subcategory=null
+  // Subcategory level: category and subcategory set, sub_subcategory=null
+  // Sub-subcategory level: all three set (matches BusinessTaxonomy)
+  category        String  // Required - always set
+  subcategory     String? // Optional - null means category level
+  sub_subcategory String? // Optional - null means subcategory level
+
+  url String // Reddit URL
+
+  // Optional reference to specific taxonomy entry (if sub-subcategory level)
+  taxonomy_id String?
+  taxonomy    BusinessTaxonomy? @relation(fields: [taxonomy_id], references: [id])
+
+  @@index([category, subcategory, sub_subcategory])
+  @@index([taxonomy_id])
+  @@index([deleted_at])
+}
+
+model TaxonomyInfluencerLink {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  // Hierarchical path - null values indicate higher level
+  category        String  // Required - always set
+  subcategory     String? // Optional - null means category level
+  sub_subcategory String? // Optional - null means subcategory level
+
+  platform InfluencerPlatform // Platform enum
+  url      String              // Influencer URL
+  channel_name String?          // Optional channel/influencer name
+
+  // Optional reference to specific taxonomy entry (if sub-subcategory level)
+  taxonomy_id String?
+  taxonomy    BusinessTaxonomy? @relation(fields: [taxonomy_id], references: [id])
+
+  @@index([category, subcategory, sub_subcategory])
+  @@index([taxonomy_id])
+  @@index([platform])
+  @@index([deleted_at])
+}
+
+model TaxonomyOtherSourceLink {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  // Hierarchical path - null values indicate higher level
+  category        String  // Required - always set
+  subcategory     String? // Optional - null means category level
+  sub_subcategory String? // Optional - null means subcategory level
+
+  source_category SourceCategory // NEWS_OUTLET, BLOG, or PODCAST
+  url             String          // Source URL
+  channel_name    String?         // Optional source name
+
+  // Optional reference to specific taxonomy entry (if sub-subcategory level)
+  taxonomy_id String?
+  taxonomy    BusinessTaxonomy? @relation(fields: [taxonomy_id], references: [id])
+
+  @@unique([category, subcategory, sub_subcategory, source_category, url])
+  @@index([category, subcategory, sub_subcategory])
+  @@index([taxonomy_id])
+  @@index([source_category])
+  @@index([deleted_at])
+}
+
+model Brand {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  business_taxonomy_id String
+  company_name         String
+  brand_name           String
+  brand_stage          BrandStage
+  approved             Boolean   @default(false)
+
+  // Company URLs
+  website_url    String?
+  careers_url    String?
+  blog_news_url  String?
+  linkedin_url   String?
+  facebook_url  String?
+  x_url         String?
+  instagram_url String?
+  tiktok_url    String?
+  youtube_url   String?
+  discord_url   String?
+
+  businessTaxonomy BusinessTaxonomy @relation(fields: [business_taxonomy_id], references: [id])
+  keywords         BrandKeyword[]
+  projectBrands    ProjectBrand[]
+  projectSources   ProjectBrandSource[] @relation("BrandProjectSources")
+  redditLinks      BrandRedditLink[]
+  additionalLinks  BrandAdditionalLink[]
+
+  @@index([business_taxonomy_id])
+  @@index([brand_stage])
+  @@index([company_name])
+  @@index([brand_name])
+  @@index([approved])
+  @@index([deleted_at])
+}
+
+model BrandKeyword {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  brand_id String
+  keyword  String
+
+  brand Brand @relation(fields: [brand_id], references: [id])
+
+  @@unique([brand_id, keyword])
+  @@index([brand_id])
+  @@index([keyword])
+  @@index([deleted_at])
+}
+
+model BrandRedditLink {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  brand_id String
+  url      String // Reddit URL
+
+  brand Brand @relation(fields: [brand_id], references: [id])
+
+  @@unique([brand_id, url])
+  @@index([brand_id])
+  @@index([deleted_at])
+}
+
+model BrandAdditionalLink {
+  id            String         @id @default("")
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  deleted_at    DateTime?
+
+  brand_id      String
+  link_type     LinkType
+  platform      InfluencerPlatform? // Required for INFLUENCER type, null for others
+  source_category SourceCategory? // Required for OTHER_SOURCE type, null for others
+  url           String
+  channel_name  String? // Optional channel name for Discord links and other sources
+
+  brand Brand @relation(fields: [brand_id], references: [id])
+
+  @@unique([brand_id, link_type, platform, source_category, url])
+  @@index([brand_id])
+  @@index([link_type])
+  @@index([platform])
+  @@index([source_category])
+  @@index([deleted_at])
+}
+
+model BrandAnalysis {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id        String
+  post_id           Int
+  brand_name        String
+  sentiment         SentimentType
+  mention_timestamp DateTime // Timestamp from the post (post.createdAt)
+
+  project Project @relation(fields: [project_id], references: [id])
+  post    Post    @relation(fields: [post_id], references: [id])
+
+  @@unique([project_id, post_id, brand_name])
+  @@index([project_id])
+  @@index([post_id])
+  @@index([brand_name])
+  @@index([sentiment])
+  @@index([mention_timestamp])
+  @@index([deleted_at])
+}
+
+model AnalysisProgress {
+  id                        String    @id @default("")
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @updatedAt
+  project_id                String    @unique
+  last_sentiment_post_id    Int       @default(0)
+  last_chatter_post_id      Int       @default(0)
+  last_themes_post_id       Int       @default(0)
+  last_network_post_id      Int       @default(0)
+  last_news_post_id         Int       @default(0)
+  last_brand_post_id           Int       @default(0)
+  last_blog_analysis_post_id  String?   // BlogPost.id (ULID) of last analyzed post; null = none yet
+  last_sanitized_chatter_at    DateTime?
+  last_sanitized_themes_at     DateTime?
+  last_sanitized_network_at    DateTime?
+  last_sanitized_news_at       DateTime?
+
+  project Project @relation(fields: [project_id], references: [id])
+}
+
+model ProjectSource {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id  String
+  source_name String
+  is_selected Boolean @default(true)
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([deleted_at])
+}
+
+model PersonEmployment {
+  id                  String    @id @default("")
+  linkedin_url        String    @unique // Unique per LinkedIn profile URL
+  name                String? // Person's name from LinkedIn
+  current_company     String? // Current company name from LinkedIn
+  current_title       String? // Current job title from LinkedIn
+  validation_status   String? // "active" | "moved_to_different_company" | "left_no_new_company" | "title_changed" | "unknown"
+  last_validated_at   DateTime? // When this profile was last validated
+  validation_metadata String? // JSON string with additional validation data (analysis method, confidence, etc.)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  // Projects that track this person
+  projectProfiles ProjectProfile[]
+
+  @@index([linkedin_url])
+  @@index([validation_status])
+  @@index([last_validated_at])
+  @@index([current_company])
+}
+
+model ProjectProfile {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id  String
+  platform    String // facebook, linkedin, twitter, etc.
+  name        String // Profile/channel name
+  url         String // Profile URL
+  type        String // person, company, channel
+  is_selected Boolean @default(true)
+
+  // Reference to shared employment data (only for LinkedIn person profiles)
+  person_employment_id String?
+  personEmployment     PersonEmployment? @relation(fields: [person_employment_id], references: [id])
+
+  // Legacy: Apify discord-data-scraper cursor resume was unreliable; we no longer read/write this for runs.
+  discord_cursor String?
+
+  // Legacy: no longer applied by Apify runs; message count comes from scraper config_json only.
+  discord_count_override Int?
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([platform])
+  @@index([deleted_at])
+  @@index([person_employment_id])
+}
+
+/// Engagement tracking tables (additive)
+model EngagementSession {
+  id                   String    @id @default("")
+  project_id           String
+  source_type          String // "themes" | "chatter"
+  source_record_id     String // references themesAnalysis.id or chatterAnalysis.id (string)
+  post_id              Int?
+  platform             String
+  destination_url      String
+  started_by_user_id   String
+  selected_identity_id String? // UserPlatformIdentity.id used for this engagement
+  started_at           DateTime  @default(now())
+  status               String // "active" | "watching" | "ended"
+  watch_until          DateTime?
+  last_check_at        DateTime?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+  deleted_at           DateTime?
+
+  @@index([project_id])
+  @@index([status])
+  @@index([watch_until])
+  @@index([source_type, source_record_id])
+  @@index([selected_identity_id])
+}
+
+model EngagementEvent {
+  id            String    @id @default("")
+  engagement_id String
+  type          String // "clicked" | "detected_user_reply" | "reaction_snapshot" | "manual_marked"
+  payload       String? // JSON string
+  occurred_at   DateTime  @default(now())
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+
+  @@index([engagement_id])
+  @@index([type])
+  @@index([occurred_at])
+}
+
+model UserPlatformIdentity {
+  id         String    @id @default("")
+  user_id    String
+  platform   String
+  identity   String
+  verified   Boolean   @default(false)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  @@unique([user_id, platform, identity])
+  @@index([user_id])
+  @@index([platform])
+}
+
+model ProjectTheme {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id  String
+  theme_name  String // e.g., "cost of service", "security concerns"
+  description String? // Optional description of what to look for
+  is_active   Boolean @default(true)
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([deleted_at])
+  @@index([is_active])
+}
+
+model Scraper {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  name             String  @unique
+  descriptive_name String  @default("")
+  actor_id         String // Apify actor ID
+  readme_url       String? // Optional URL to scraper documentation/readme
+  platform         String // Platform this scraper targets (facebook, twitter, linkedin, etc.)
+  config_json      String // JSON configuration for the scraper
+  is_active        Boolean @default(false)
+  save_to_db       Boolean @default(true) // Toggle for DB vs downstream
+
+  // Input handling configuration
+  input_type      String  @default("array") // "array" or "single"
+  run_iteratively Boolean @default(true) // For single input type
+
+  // URL input configuration for downstream scrapers
+  url_input_field_name     String? // Field name in config (e.g., "urls", "startUrls")
+  url_input_source_scraper String? // Name of scraper to get URLs from (e.g., "LinkedIn Posts Search Scraper")
+
+  jobs ScrapeJob[]
+
+  @@index([name])
+  @@index([platform])
+  @@index([deleted_at])
+}
+
+// Custom search source tasks (e.g. LLM-backed; no Apify)
+enum TaskTimingDefinition {
+  LAST_HOUR
+  LAST_DAY
+  LAST_7_DAYS
+  LAST_WEEK
+}
+
+model SearchSourceTask {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  name                 String   @unique
+  description          String?
+  timing_definition     TaskTimingDefinition
+  /** When set with timing_duration_unit, overrides timing_definition for blog search window (e.g. 3 + "day" = last 3 days). */
+  timing_duration_number Int?
+  /** Unit for custom duration: "day", "week", "month". Used with timing_duration_number. */
+  timing_duration_unit   String?
+  openai_prompt_text   String   @default("") // Prompt for the model (empty = use default summary prompt)
+  target               String   // e.g. "Post", "DownstreamPost"
+  is_active            Boolean  @default(true)
+  config_json          String?  // Optional: model, temperature, max_tokens, etc.
+
+  task_runs            TaskRun[]
+  step_executions      OrchestrationStepExecution[]
+
+  @@index([name])
+  @@index([is_active])
+  @@index([deleted_at])
+}
+
+model TaskRun {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  task_id          String
+  project_id       String
+  execution_id     String? // OrchestrationExecution id when run via orchestration
+  step_execution_id String? // OrchestrationStepExecution id when run via orchestration
+
+  status         OrchestrationStatus @default(PENDING)
+  started_at     DateTime?
+  completed_at   DateTime?
+  error_message  String?
+  result_preview String? // Text or JSON preview of OpenAI result
+
+  task           SearchSourceTask            @relation(fields: [task_id], references: [id])
+  project        Project                     @relation(fields: [project_id], references: [id])
+  step_execution OrchestrationStepExecution? @relation(fields: [step_execution_id], references: [id])
+
+  @@index([task_id])
+  @@index([project_id])
+  @@index([execution_id])
+  @@index([step_execution_id])
+  @@index([status])
+  @@index([deleted_at])
+}
+
+model ScrapeJob {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id   String
+  scraper_id   String
+  status       JobStatus @default(PENDING)
+  apify_run_id String? // Apify run ID for tracking
+
+  // Job details
+  started_at    DateTime?
+  completed_at  DateTime?
+  error_message String?
+
+  // Results
+  posts_count     Int @default(0)
+  discarded_count Int @default(0)
+
+  // URL tracking for downstream scrapers
+  used_urls String? // JSON array of URLs that were used as input
+  /** OrchestrationRun.id for task-based analysis; stamped on Post when saving. */
+  orchestration_run_id String?
+  /** OrchestrationExecution.id for this scrape step — stamps DownstreamPost seeds so downstream scrapers only see this run. */
+  orchestration_execution_id String?
+
+  project         Project                      @relation(fields: [project_id], references: [id])
+  scraper         Scraper                      @relation(fields: [scraper_id], references: [id])
+  posts           Post[]
+  downstreamPosts DownstreamPost[]
+  step_executions OrchestrationStepExecution[]
+
+  @@index([project_id])
+  @@index([scraper_id])
+  @@index([status])
+  @@index([orchestration_execution_id])
+  @@index([deleted_at])
+}
+
+model Post {
+  id              Int       @id @default(autoincrement())
+  platform        String // e.g. 'reddit', 'x', 'linkedin', 'facebook', 'discord'
+  postId          String // platform-specific unique id (message_id, tweet_id, etc.)
+  authorId        String? // user id from platform
+  authorName      String? // username / display name
+  content         String? // main text of the post/message
+  createdAt       DateTime // ISO timestamp
+  editedAt        DateTime?
+  url             String? // permalink to the post
+  channelId       String? // discord channel id / fb group id / reddit subreddit, etc.
+  threadRefId     String? // parent message id (for replies, threads)
+  media           Json? // attachments, images, embeds, stored as JSON
+  metricsLikes    Int? // likes, upvotes, etc.
+  metricsComments Int? // comments / replies
+  metricsShares   Int? // shares / retweets
+  extraJson       Json? // full raw scraper payload
+
+  // Test flag to distinguish test data from real data
+  isTest Boolean @default(false)
+
+  // Language detection (ISO 639-1 code: en, es, fr, etc.)
+  language String? // Detected language code, null = unknown/not detected
+
+  // Relationships
+  project_id String?
+  job_id     String?
+  /** OrchestrationRun.id when post was ingested; used for task-based analysis membership. */
+  ingested_run_id String?
+
+  /** When set, this Post was created from an HN story idea row (see HnStoryAnalysis). */
+  hn_story_analysis_id String?
+  hnStoryAnalysis      HnStoryAnalysis? @relation(fields: [hn_story_analysis_id], references: [id])
+
+  // AI Analysis (optional fields for future use)
+  sentiment       SentimentType?
+  summary         String?
+  ai_processed_at DateTime?
+
+  /// GitHub: LLM relevance 0–100 vs project My Product / description; set when repo is ingested/enriched.
+  github_product_relevance_score Int?
+
+  // Conversation materialization (root/response/standalone)
+  post_conversation_role PostConversationRole?
+  conversation_id       String?
+
+  project       Project?        @relation(fields: [project_id], references: [id])
+  job           ScrapeJob?      @relation(fields: [job_id], references: [id])
+  brandAnalysis      BrandAnalysis[]
+  conversation       Conversation?   @relation("PostConversation", fields: [conversation_id], references: [id])
+  conversationAsRoot Conversation?   @relation("ConversationRootPost")
+  conversationNodes  ConversationNode[]
+
+  @@unique([project_id, platform, postId])
+  @@index([platform, postId])
+  @@index([createdAt])
+  @@index([authorId])
+  @@index([project_id])
+  @@index([job_id])
+  @@index([project_id, ingested_run_id])
+  @@index([sentiment])
+  @@index([isTest])
+  @@index([language])
+  @@index([conversation_id])
+  @@index([post_conversation_role])
+  @@index([hn_story_analysis_id])
+  @@index([project_id, platform, github_product_relevance_score])
+  prospectCandidates ProspectCandidate[]
+}
+
+model Conversation {
+  id            String    @id @default("")
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+
+  project_id   String
+  root_post_id Int    @unique
+  platform     String
+
+  project  Project   @relation(fields: [project_id], references: [id])
+  rootPost Post      @relation("ConversationRootPost", fields: [root_post_id], references: [id])
+  nodes    ConversationNode[]
+  posts    Post[]    @relation("PostConversation")
+
+  @@unique([project_id, root_post_id])
+  @@index([project_id, deleted_at])
+  @@index([root_post_id])
+  @@index([deleted_at])
+}
+
+model ConversationNode {
+  id               String    @id @default("")
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  deleted_at       DateTime?
+
+  conversation_id  String
+  post_id          Int
+  parent_node_id   String?
+  order_index     Int       @default(0)
+  depth           Int       @default(0)
+
+  conversation Conversation  @relation(fields: [conversation_id], references: [id])
+  post         Post          @relation(fields: [post_id], references: [id])
+  parent       ConversationNode?   @relation("ConversationNodeTree", fields: [parent_node_id], references: [id])
+  children     ConversationNode[] @relation("ConversationNodeTree")
+
+  @@unique([conversation_id, post_id])
+  @@index([conversation_id, deleted_at])
+  @@index([post_id])
+  @@index([deleted_at])
+}
+
+model DownstreamPost {
+  id                    Int              @id @default(autoincrement())
+  platform              String // e.g. 'reddit', 'x', 'linkedin', 'facebook', 'discord'
+  postId                String // platform-specific unique id (message_id, tweet_id, etc.)
+  authorId              String? // user id from platform
+  authorName            String? // username / display name
+  authorProfileUrl      String?
+  authorHeadline        String?
+  authorImageUrl        String?
+  content               String? // main text of the post/message
+  createdAt             DateTime // ISO timestamp
+  editedAt              DateTime?
+  url                   String? // permalink to the post
+  channelId             String? // discord channel id / fb group id / reddit subreddit, etc.
+  threadRefId           String? // parent message id (for replies, threads)
+  media                 Json? // attachments, images, embeds, stored as JSON
+  metricsLikes          Int? // likes, upvotes, etc.
+  metricsComments       Int? // comments / replies
+  metricsShares         Int? // shares / retweets
+  extraJson             Json? // full raw scraper payload
+  origin                DownstreamOrigin @default(SEARCH_RESULT)
+  status                DownstreamStatus @default(PENDING)
+  search_query          String?
+  processing_started_at DateTime?
+  processed_at          DateTime?
+  expires_at            DateTime?
+
+  // Test flag to distinguish test data from real data
+  isTest Boolean @default(false)
+
+  // Language detection (ISO 639-1 code: en, es, fr, etc.)
+  language String? // Detected language code, null = unknown/not detected
+
+  // Relationships
+  project_id                 String?
+  job_id                     String?
+  orchestration_execution_id String? // Track which orchestration execution created this record
+
+  // AI Analysis (optional fields for future use)
+  sentiment       SentimentType?
+  summary         String?
+  ai_processed_at DateTime?
+
+  // YouTube: full transcript text (from scraper subtitles[].srt) and AI summary of video
+  transcript String? // Plain text extracted from subtitles[0].srt (or first available)
+
+  // Additional field for tracking original scraper
+  origScraper String // Name of the scraper that generated this post
+
+  project                Project?                @relation(fields: [project_id], references: [id])
+  job                    ScrapeJob?              @relation(fields: [job_id], references: [id])
+  orchestrationExecution OrchestrationExecution? @relation(fields: [orchestration_execution_id], references: [id])
+
+  @@index([platform, postId])
+  @@index([createdAt])
+  @@index([authorId])
+  @@index([project_id])
+  @@index([job_id])
+  @@index([orchestration_execution_id])
+  @@index([sentiment])
+  @@index([isTest])
+  @@index([language])
+  @@index([origScraper])
+  @@index([status])
+  @@index([origin])
+  @@index([project_id, origScraper, status])
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum SentimentType {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+  MIXED
+}
+
+enum PostConversationRole {
+  STANDALONE // No comments/replies
+  ROOT // Root of a conversation (has replies)
+  RESPONSE // Reply/comment in a conversation
+}
+
+enum InitialRunType {
+  NOW
+  SCHEDULED
+}
+
+enum DownstreamOrigin {
+  SEARCH_RESULT
+  CONVERSATION
+}
+
+enum DownstreamStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+// ============================================
+// Blog / News Analysis (OpenAI-based, no Apify)
+// ============================================
+
+// --- Audience ---
+enum ContentPersona {
+  DEVELOPER_ENGINEER
+  CTO_VP_ENGINEERING
+  CISO_SECURITY_LEADER
+  BUSINESS_BUYER
+  END_USER_CUSTOMER
+  INVESTOR_ANALYST
+  PARTNER_ECOSYSTEM
+  GENERAL_PUBLIC_PRESS
+}
+
+enum SeniorityLevel {
+  IC
+  MANAGER
+  EXECUTIVE
+  MIXED
+}
+
+enum AudienceDomain {
+  TECHNICAL
+  BUSINESS
+  COMPLIANCE_LEGAL
+  MIXED
+}
+
+enum AudienceTargeting {
+  EXPLICITLY_TARGETED
+  BROAD_MULTI_PERSONA
+}
+
+// --- Offering context ---
+enum OfferingContentType {
+  NEW_PRODUCT
+  NEW_FEATURE
+  EXISTING_PRODUCT_ENHANCEMENT
+  REPOSITIONING_EXISTING_CAPABILITY
+  PACKAGING_PRICING_CHANGE
+  NO_PRODUCT_MENTIONED
+}
+
+enum LifecycleStage {
+  ANNOUNCEMENT
+  EARLY_ACCESS_BETA
+  GA_LAUNCH
+  ITERATION_IMPROVEMENT
+  DEPRECATION_SUNSET
+}
+
+// --- Primary intent ---
+enum PrimaryIntent {
+  PRODUCT_FEATURE_ANNOUNCEMENT
+  COMPETITIVE_DIFFERENTIATION
+  CUSTOMER_PARTNER_ANNOUNCEMENT
+  TECHNICAL_EDUCATION_THOUGHT_LEADERSHIP
+  TRUST_RISK_REDUCTION
+  MARKET_POSITIONING_NARRATIVE_SHAPING
+  EVENT_PROMOTION_OR_RECAP
+  BRAND_CREDIBILITY
+  VISION_ROADMAP_SIGNALING
+}
+
+enum SecondaryIntent {
+  RECRUITING
+  INVESTOR_SIGNALING
+  SEO_DISCOVERABILITY
+  COMMUNITY_BUILDING
+}
+
+// --- Evidence & credibility ---
+enum EvidenceType {
+  CLAIMS_ONLY
+  METRICS_NUMBERS
+  CUSTOMER_QUOTES
+  LOGOS_NAMED_BRANDS
+  BENCHMARKS_COMPARISONS
+  THIRD_PARTY_VALIDATION
+}
+
+enum EvidenceStrength {
+  WEAK
+  MODERATE
+  STRONG
+}
+
+// --- Depth & specificity ---
+enum SpecificityLevel {
+  HIGH_LEVEL_CONCEPTUAL
+  SEMI_TECHNICAL
+  DEEP_TECHNICAL
+  OPERATIONAL_TACTICAL
+}
+
+enum ActionabilityLevel {
+  INFORMATIONAL_ONLY
+  EXPLAINS_HOW
+  INVITES_ACTION
+}
+
+// --- Competitive signal ---
+enum CompetitivePosture {
+  EXPLICIT_COMPETITOR_COMPARISON
+  IMPLICIT_DIFFERENTIATION
+  CATEGORY_DEFINITION_REFRAMING
+  NO_COMPETITIVE_SIGNAL
+}
+
+enum CompetitiveDirection {
+  OFFENSIVE
+  DEFENSIVE
+}
+
+// --- Sensitivity & risk ---
+enum SensitivityLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum SensitivityTone {
+  REASSURING
+  DEFENSIVE
+  CONFIDENT
+  TRANSPARENT_POST_INCIDENT
+}
+
+// --- Temporal ---
+enum TimingNature {
+  PROACTIVE
+  REACTIVE
+  SEASONAL_CYCLICAL
+}
+
+enum UrgencyLevel {
+  IMMEDIATE
+  NEAR_TERM
+  LONG_TERM
+}
+
+// --- Strategic ---
+enum ConfidencePosture {
+  EXPLORATORY
+  ASSERTIVE
+  DEFENSIVE
+  EVANGELICAL
+}
+
+// --- Meta (optional) ---
+enum ContentArchetype {
+  ANNOUNCEMENT
+  PROOF_POINT
+  NARRATIVE_SHAPING
+  DAMAGE_CONTROL
+  EVANGELISM
+}
+
+// --- Affiliation (relationship of post/source to the brand) ---
+enum PostAffiliation {
+  COMPANY_OFFICIAL  // Company's own blog/newsroom — typically favorable
+  AFFILIATED        // Partner, subsidiary, sponsored, or affiliate
+  INDEPENDENT       // Independent blogger, no formal tie — often neutral
+  MEDIA_OUTLET      // News outlet / press — varies
+  UNKNOWN
+}
+
+enum BlogAnalysisRunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model BlogAnalysisRun {
+  id                   String    @id @default("")
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+  deleted_at           DateTime?
+
+  project_id           String
+  source_url           String // Starting URL (blog/newsroom root)
+  no_items_before_date DateTime // Only items on or after this date
+  run_at               DateTime  @default(now())
+  status               BlogAnalysisRunStatus @default(PENDING)
+  items_found_count    Int       @default(0)
+  error_message        String? // If status = FAILED
+
+  project  Project            @relation(fields: [project_id], references: [id])
+  analyses BlogNewsAnalysis[]
+
+  @@index([project_id])
+  @@index([run_at])
+  @@index([deleted_at])
+}
+
+model BlogNewsAnalysis {
+  id               String    @id @default("")
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  deleted_at       DateTime?
+
+  project_id       String
+  analysis_run_id  String?
+  source_url       String
+  article_url      String
+  article_title    String?
+  article_date     DateTime?
+  summary          String?
+  idea_1           String?   // Main theme from paragraph/section 1 (up to 7 ideas for long posts)
+  idea_2           String?
+  idea_3           String?
+  idea_4           String?
+  idea_5           String?
+  idea_6           String?
+  idea_7           String?
+
+  // --- 1. Audience ---
+  primary_persona    ContentPersona?
+  secondary_personas Json?
+  seniority_level    SeniorityLevel?
+  audience_domain    AudienceDomain?
+  audience_targeting AudienceTargeting?
+
+  // --- 2. Offering context ---
+  offering_content_type OfferingContentType?
+  lifecycle_stage       LifecycleStage?
+  offering_notes        String?
+
+  // --- 3. Primary intent ---
+  primary_intent   PrimaryIntent?
+  secondary_intents Json?
+
+  // --- 4. Evidence & credibility ---
+  evidence_types_used Json?
+  evidence_strength   EvidenceStrength?
+
+  // --- 5. Depth & specificity ---
+  specificity_level   SpecificityLevel?
+  actionability_level ActionabilityLevel?
+
+  // --- 6. Competitive signal ---
+  competitive_posture  CompetitivePosture?
+  competitive_direction CompetitiveDirection?
+  explicit_competitors  String?
+  category_framing     String?
+
+  // --- 7. Sensitivity & risk ---
+  sensitivity_level         SensitivityLevel?
+  sensitivity_tone          SensitivityTone?
+  trust_building_elements   String?
+
+  // --- 8. Temporal ---
+  timing_nature TimingNature?
+  urgency_level UrgencyLevel?
+
+  // --- 9. Strategic ---
+  implied_strategic_direction String?
+  confidence_posture          ConfidencePosture?
+
+  // --- 10. Call to action ---
+  explicit_cta String?
+  implicit_cta  String?
+
+  // --- Optional meta ---
+  content_archetype     ContentArchetype?
+  signal_strength_score Int? // 1–5
+  affiliation           PostAffiliation? // Relationship of post/source to the brand (company vs independent, etc.)
+  /** Relevance 1–5 (5 highest): how well title/content align with project ideas and brands; set by extraction when project context is provided. */
+  relevance_score Int?
+  /** True if the post is a paid ad: clear CTA and purpose is to sell a product or service. */
+  is_ad           Boolean?
+  /** How many times this main theme (idea_1) appears across blog posts in this project; default 1; updated by periodic mention-count job. */
+  mention_count   Int      @default(1)
+  /** When mention_count > 1, same value for all rows in the same story cluster; used to create one PostNews per story. */
+  news_cluster_id String?
+
+  raw_extraction_json Json?
+  /** JSON array of { ideaIndex: number, themeId: string, themeName: string } for idea-to-theme matches */
+  theme_matches_json  String?
+
+  project      Project           @relation(fields: [project_id], references: [id])
+  analysis_run BlogAnalysisRun?  @relation(fields: [analysis_run_id], references: [id])
+
+  @@unique([project_id, article_url])
+  @@index([project_id])
+  @@index([analysis_run_id])
+  @@index([article_date])
+  @@index([deleted_at])
+}
+
+// ============================================
+// Hacker News story analysis (ideas + optional comment-thread summary)
+// ============================================
+// One row per (project, HN story id). Dedupes processing; each idea may become a Post (platform hackernews).
+
+model HnStoryAnalysis {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id  String
+  hn_story_id String
+  story_url   String
+  title       String?
+  story_text  String?
+  /** HN item `time` (story creation), when available. */
+  story_posted_at DateTime?
+
+  /** Short synopsis for theme matching (derived from ideas / title). */
+  summary String?
+
+  idea_1 String?
+  idea_2 String?
+  idea_3 String?
+  idea_4 String?
+  idea_5 String?
+  idea_6 String?
+  idea_7 String?
+
+  relevance_score Int?
+  is_ad             Boolean?
+
+  comments_summary         String?
+  comments_engagement_meta Json?
+
+  ingested_run_id String?
+
+  project Project @relation(fields: [project_id], references: [id])
+  posts   Post[]
+
+  @@unique([project_id, hn_story_id])
+  @@index([project_id])
+  @@index([deleted_at])
+}
+
+// One row per HN story: main themes in the comment section (Firebase sample + LLM), updated on ingest.
+model HnStoryCommentTheme {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  hn_story_id String @unique
+  story_url   String?
+  story_title String?
+  story_posted_at DateTime?
+
+  /** Concise themes from comments (not the story body). Null if no material discussion. */
+  comment_themes_summary String?
+
+  meta Json?
+
+  @@index([deleted_at])
+}
+
+// ============================================
+// Blog Post (scraper output, before analysis)
+// ============================================
+// Raw scraped blog content. Analysis (BlogNewsAnalysis) runs later when orchestration completes.
+// No duplicates: unique (project_id, article_url). Affiliation set when post is from brand's page.
+
+model BlogPost {
+  id            String    @id @default("")
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+
+  project_id    String
+  article_url   String    // Scraper: company_url
+  article_title String?
+  article_date  DateTime? // Optional; parse from page when available
+  content       String    // Scraper: text (blog body)
+  affiliation   PostAffiliation? // COMPANY_OFFICIAL when from brand's blog page
+  scraped_at       DateTime  @default(now())
+  source_url       String?   // Brand blog index URL when from brand page
+  /** OrchestrationRun.id when post was ingested; used for task-based analysis membership. */
+  ingested_run_id  String?
+
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@unique([project_id, article_url])
+  @@index([project_id])
+  @@index([project_id, ingested_run_id])
+  @@index([article_date])
+  @@index([deleted_at])
+}
+
+// ============================================
+// Task-Based Analysis Models (OrchestrationRun, RunRecord, AnalysisTask)
+// ============================================
+
+enum OrchestrationRunStatus {
+  COLLECTING
+  READY_FOR_ANALYSIS
+  ANALYZING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+}
+
+enum RunRecordType {
+  POST
+  BLOG_POST
+  NEWS_BATCH
+}
+
+enum AnalysisStep {
+  SENTIMENT
+  THEMES
+  CHATTER
+  NETWORK
+  NEWS
+  BRAND
+  BLOG_NEWS_ANALYSIS
+}
+
+enum AnalysisTaskState {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  SKIPPED
+}
+
+model OrchestrationRun {
+  id                         String    @id @default("")
+  created_at                  DateTime  @default(now())
+  updated_at                  DateTime  @updatedAt
+  deleted_at                  DateTime?
+
+  project_id                  String
+  orchestration_execution_id  String?
+  status                      OrchestrationRunStatus @default(COLLECTING)
+  started_at                  DateTime  @default(now())
+  collected_at                 DateTime?
+  analysis_started_at          DateTime?
+  analysis_completed_at        DateTime?
+  metadata                    Json?
+
+  runRecords       RunRecord[]
+  analysisTasks    AnalysisTask[]
+  postNews         PostNews[]
+  themesAnalyses   ThemesAnalysis[]
+  chatterAnalyses  ChatterAnalysis[]
+  networkAnalyses  NetworkAnalysis[]
+
+  @@index([orchestration_execution_id])
+  @@index([project_id, status])
+  @@index([project_id, started_at])
+  @@index([deleted_at])
+}
+
+model RunRecord {
+  id          String    @id @default("")
+  created_at  DateTime  @default(now())
+  deleted_at  DateTime?
+
+  run_id      String
+  project_id  String
+  record_type RunRecordType
+  record_key  String  // Post.id, BlogPost.id, or batch id e.g. {runId}-batch-{idx}
+  source      String?
+
+  run OrchestrationRun @relation(fields: [run_id], references: [id])
+
+  @@unique([run_id, record_type, record_key])
+  @@index([run_id])
+  @@index([project_id, record_type])
+  @@index([deleted_at])
+}
+
+model AnalysisTask {
+  id             String    @id @default("")
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime?
+
+  project_id     String
+  run_id         String
+  record_type    RunRecordType
+  record_key     String
+  step           AnalysisStep
+  state          AnalysisTaskState @default(PENDING)
+  attempt_count  Int       @default(0)
+  locked_at      DateTime?
+  last_error     String?
+  result_version Int       @default(1)
+  completed_at   DateTime?
+
+  run OrchestrationRun @relation(fields: [run_id], references: [id])
+
+  @@unique([project_id, record_type, record_key, step, result_version])
+  @@index([project_id, state, step])
+  @@index([run_id, state])
+  /// Covers progress queries: WHERE run_id AND deleted_at IS NULL GROUP BY state
+  @@index([run_id, deleted_at, state])
+  @@index([deleted_at])
+}
+
+// ============================================
+// News Analysis Model
+// ============================================
+
+model PostNews {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  /// When set, this row was produced by task-based analysis for this orchestration run (sanitization can scope to the run).
+  orchestration_run_id String?
+  orchestrationRun     OrchestrationRun? @relation(fields: [orchestration_run_id], references: [id], onDelete: SetNull)
+
+  // Core fields
+  title   String
+  summary String?
+  content String?
+
+  // Source link (e.g. blog article URL when sources include "blog")
+  source_url String?
+
+  // Relationships
+  project_id String
+  post_ids   String? // JSON array of related post IDs
+
+  // Time range
+  date_range_start DateTime?
+  date_range_end   DateTime?
+
+  // Analysis metadata
+  sources          String? // JSON array of platforms (facebook, linkedin, etc.)
+  sentiment        String? // Overall sentiment (POSITIVE, NEGATIVE, NEUTRAL, MIXED)
+  importance_score Int? // 0-100 score indicating how significant/trending
+  tags             String? // JSON array of keywords/topics
+  language         String? // Primary language of news content (ISO 639-1 code)
+
+  // Relations
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([orchestration_run_id])
+  @@index([deleted_at])
+  @@index([date_range_start])
+  @@index([importance_score])
+  @@index([language])
+}
+
+// ============================================
+// Orchestration Models
+// ============================================
+
+model Orchestration {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  name        String
+  description String?
+  user_id     String
+
+  // Configuration
+  project_ids String // JSON array of project IDs
+  threads     String // JSON array of thread configurations
+
+  // Status
+  is_running  Boolean   @default(false)
+  last_run_at DateTime?
+
+  // Relationships
+  user        User                      @relation(fields: [user_id], references: [id])
+  executions  OrchestrationExecution[]
+  recipeSteps OrchestrationRecipeStep[]
+
+  @@index([user_id])
+  @@index([deleted_at])
+  @@index([is_running])
+}
+
+model OrchestrationExecution {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  orchestration_id String
+  status           OrchestrationStatus @default(PENDING)
+
+  // Execution details
+  started_at    DateTime?
+  completed_at  DateTime?
+  error_message String?
+
+  // Results
+  total_threads     Int @default(0)
+  completed_threads Int @default(0)
+  total_jobs        Int @default(0)
+  completed_jobs    Int @default(0)
+
+  // Relationships
+  orchestration     Orchestration                  @relation(fields: [orchestration_id], references: [id])
+  thread_executions OrchestrationThreadExecution[]
+  downstreamPosts   DownstreamPost[]
+
+  @@index([orchestration_id])
+  @@index([status])
+  @@index([deleted_at])
+}
+
+model OrchestrationThreadExecution {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  execution_id    String
+  thread_name     String
+  thread_sequence Int // Order of execution within the orchestration
+
+  // Status
+  status        OrchestrationStatus @default(PENDING)
+  started_at    DateTime?
+  completed_at  DateTime?
+  error_message String?
+
+  // Thread details
+  total_steps     Int @default(0)
+  completed_steps Int @default(0)
+  current_step    Int @default(0)
+
+  // Relationships
+  execution       OrchestrationExecution       @relation(fields: [execution_id], references: [id])
+  step_executions OrchestrationStepExecution[]
+
+  @@index([execution_id])
+  @@index([thread_sequence])
+  @@index([status])
+  @@index([deleted_at])
+}
+
+model OrchestrationStepExecution {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  thread_execution_id String
+  step_sequence       Int // Order within the thread
+
+  // Step type: scraper (Apify) or openai_task
+  scraper_id            String? // Set when step is a scraper
+  search_source_task_id String? // Set when step is a custom (search-source) task
+  scraper_name          String  // Display name (scraper or task name)
+  platform             String  // For scrapers: platform; for tasks: e.g. "openai_task"
+  project_id            String
+
+  // Status
+  status        OrchestrationStatus @default(PENDING)
+  started_at    DateTime?
+  completed_at  DateTime?
+  error_message String?
+
+  // Job tracking
+  scrape_job_id String? // Reference to ScrapeJob (scraper steps only)
+
+  // Relationships
+  thread_execution   OrchestrationThreadExecution @relation(fields: [thread_execution_id], references: [id])
+  scrape_job         ScrapeJob?                   @relation(fields: [scrape_job_id], references: [id])
+  search_source_task SearchSourceTask?            @relation(fields: [search_source_task_id], references: [id])
+  task_runs         TaskRun[]
+
+  @@index([thread_execution_id])
+  @@index([step_sequence])
+  @@index([status])
+  @@index([scraper_id])
+  @@index([search_source_task_id])
+  @@index([deleted_at])
+}
+
+enum OrchestrationStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ============================================
+// Orchestration Recipe Models
+// ============================================
+
+model OrchestrationRecipe {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  name        String
+  description String?
+  user_id     String
+
+  // Global settings
+  timezone  String  @default("UTC")
+  is_active Boolean @default(true)
+
+  // Relationships
+  user  User                      @relation(fields: [user_id], references: [id])
+  steps OrchestrationRecipeStep[]
+
+  @@index([user_id])
+  @@index([deleted_at])
+  @@index([is_active])
+}
+
+model OrchestrationRecipeStep {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  recipe_id        String
+  orchestration_id String // Which orchestration to run
+
+  // Sequence position (1, 2, 3, ...) - determines order in recipe
+  sequence Int
+
+  // Timing configuration for this step
+  initial_enabled       Boolean        @default(false) // Run once for new projects
+  initial_run_type      InitialRunType @default(NOW)
+  initial_schedule_time String?
+  hourly_interval       Int? // Hours between runs (1-12), null = disabled
+  daily_interval        Int? // Days between runs (1-100), null = disabled
+  daily_time            String? // Time of day for daily runs (HH:MM format, e.g., "09:00")
+
+  // Relationships
+  recipe                  OrchestrationRecipe           @relation(fields: [recipe_id], references: [id])
+  orchestration           Orchestration                 @relation(fields: [orchestration_id], references: [id])
+  timerTasks              OrchestrationTimerTask[]
+  skipConfigurations      OrchestrationRecipeStepSkip[] @relation("SkipSources")
+  skippedByConfigurations OrchestrationRecipeStepSkip[] @relation("SkipTargets")
+
+  @@unique([recipe_id, sequence]) // Ensure unique sequence per recipe
+  @@index([recipe_id])
+  @@index([orchestration_id])
+  @@index([sequence])
+  @@index([deleted_at])
+}
+
+model OrchestrationTimerTask {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  recipe_step_id   String // Reference to the recipe step that generated this task
+  orchestration_id String // The orchestration to execute
+
+  // Timing
+  task_type    String // "initial" | "hourly" | "daily"
+  scheduled_at DateTime // When this task should run
+  executed_at  DateTime? // When it was actually executed
+
+  // Status
+  status        TimerTaskStatus @default(PENDING)
+  error_message String?
+
+  // Relationships
+  recipeStep OrchestrationRecipeStep @relation(fields: [recipe_step_id], references: [id])
+
+  @@index([recipe_step_id])
+  @@index([orchestration_id])
+  @@index([scheduled_at])
+  @@index([status])
+  @@index([task_type])
+  @@index([deleted_at])
+}
+
+model OrchestrationRecipeStepSkip {
+  id           String   @id @default("")
+  created_at   DateTime @default(now())
+  step_id      String
+  skip_step_id String
+
+  step     OrchestrationRecipeStep @relation("SkipSources", fields: [step_id], references: [id], onDelete: Cascade)
+  skipStep OrchestrationRecipeStep @relation("SkipTargets", fields: [skip_step_id], references: [id], onDelete: Cascade)
+
+  @@unique([step_id, skip_step_id])
+  @@index([skip_step_id])
+}
+
+enum TimerTaskStatus {
+  PENDING
+  EXECUTED
+  FAILED
+  CANCELLED
+  SKIPPED
+}
+
+// ============================================
+// Analysis Tables
+// ============================================
+
+model NetworkAnalysis {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  orchestration_run_id String?
+  orchestrationRun     OrchestrationRun? @relation(fields: [orchestration_run_id], references: [id], onDelete: SetNull)
+
+  // Core identification
+  project_id  String
+  platform    String
+  author_id   String
+  author_name String
+
+  // Platform-specific
+  discord_server_name String?
+  profile_url         String?
+
+  // Analyzed content (OpenAI output)
+  ideas_json String? // JSON array of summarized ideas
+
+  // Metrics
+  post_count      Int @default(0)
+  total_likes     Int @default(0)
+  total_comments  Int @default(0)
+  total_shares    Int @default(0)
+  total_reactions Int @default(0)
+
+  // Analysis metadata
+  analyzed_at DateTime?
+  post_ids    String? // JSON array of post IDs analyzed
+  language    String? // Primary language of posts (ISO 639-1 code)
+
+  // Post date range (for filtering)
+  earliest_post_at DateTime? // Earliest post date from analyzed posts
+  latest_post_at   DateTime? // Latest post date from analyzed posts
+
+  // Relations
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@unique([project_id, platform, author_id])
+  @@index([project_id])
+  @@index([orchestration_run_id])
+  @@index([platform])
+  @@index([total_reactions])
+  @@index([deleted_at])
+  @@index([latest_post_at])
+  @@index([language])
+}
+
+model ChatterAnalysis {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  orchestration_run_id String?
+  orchestrationRun     OrchestrationRun? @relation(fields: [orchestration_run_id], references: [id], onDelete: SetNull)
+
+  // Core identification
+  project_id String
+
+  // Discussion/Thread info
+  discussion_title String // Generated title for the discussion
+  topic_category   String? // e.g., "Technical", "Product", "Community"
+
+  // Analyzed content (OpenAI output)
+  summary         String? // High-level summary of the discussion
+  key_points_json String? // JSON array of key discussion points
+  sentiment       String? // Overall sentiment (POSITIVE, NEGATIVE, NEUTRAL, MIXED)
+
+  // Context
+  platforms_json    String? // JSON array of platforms where this discussion happened
+  post_ids          String? // JSON array of related post IDs
+  participant_count Int     @default(0)
+  participant_names String? // JSON array of participant names
+  discord_channel   String? // Discord channel name (if Discord)
+  discord_server    String? // Discord server name (if Discord)
+
+  // Metrics
+  total_messages   Int @default(0)
+  total_likes      Int @default(0)
+  total_comments   Int @default(0)
+  total_shares     Int @default(0)
+  total_engagement Int @default(0)
+
+  // Time range
+  first_post_at DateTime?
+  last_post_at  DateTime?
+
+  // Analysis metadata
+  analyzed_at      DateTime?
+  importance_score Int? // 0-100 indicating discussion importance
+  language         String? // Primary language of conversation (ISO 639-1 code)
+
+  // Relations
+  project Project @relation(fields: [project_id], references: [id])
+
+  @@index([project_id])
+  @@index([orchestration_run_id])
+  @@index([importance_score])
+  @@index([deleted_at])
+  @@index([first_post_at])
+  @@index([language])
+}
+
+model ThemesAnalysis {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  orchestration_run_id String?
+  orchestrationRun     OrchestrationRun? @relation(fields: [orchestration_run_id], references: [id], onDelete: SetNull)
+
+  // Core identification
+  project_id String
+  theme_id   String // Reference to ProjectTheme
+  theme_name String // Cached theme name
+
+  // Post/Discussion reference
+  post_id  Int // The specific post discussing this theme
+  platform String
+
+  // Content
+  post_content    String? // Excerpt of the post
+  post_url        String? // Link to the post
+  discord_channel String? // Discord channel ID (if Discord)
+  discord_server  String? // Discord server name (if Discord)
+
+  // Participants
+  author_name       String?
+  author_id         String?
+  participant_names String? // JSON array if it's a conversation
+
+  // Metrics
+  likes           Int @default(0)
+  comments        Int @default(0)
+  shares          Int @default(0)
+  total_reactions Int @default(0)
+
+  // Timing
+  posted_at DateTime?
+
+  // Analysis metadata
+  analyzed_at     DateTime?
+  relevance_score Int? // 0-100 how relevant to theme
+  sentiment       String? // Sentiment about this specific theme
+  language        String? // Language of the post (ISO 639-1 code)
+
+  // User read state (project owner); cascade by normalized open URL (`read_url_key`)
+  is_read       Boolean @default(false)
+  read_url_key  String?
+
+  /// Per response_objective_id: last error message when generation failed after relevance passed (JSON object).
+  response_generation_errors Json?
+
+  // Relations
+  project Project @relation(fields: [project_id], references: [id])
+  themeItemResponses ThemeItemResponse[]
+  prospectCandidates ProspectCandidate[]
+
+  @@index([project_id])
+  @@index([project_id, read_url_key])
+  @@index([orchestration_run_id])
+  @@index([theme_id])
+  @@index([platform])
+  @@index([deleted_at])
+  @@index([posted_at])
+  @@index([relevance_score])
+  @@index([language])
+}
+
+/// Per-project goals for theme-based reply generation (multiple per project).
+model ResponseObjective {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id String
+  name       String
+  description String @default("")
+
+  /// JSON string[] — platform keys (normalized lowercase)
+  allowed_sources   Json?
+  excluded_sources  Json?
+
+  /// Per-source: include + org reply mode (see lib/response-objective-sources). When set, takes precedence over flat allowed_sources / is_org_identified.
+  source_reply_settings Json?
+
+  persona           String
+  is_org_identified Boolean @default(false)
+
+  relevance_guidelines String @default("")
+  style_guidelines     String @default("")
+
+  /// JSON: { platform: string, examples: string[] }[]
+  example_responses Json?
+
+  project            Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  themeItemResponses ThemeItemResponse[]
+
+  @@index([project_id])
+  @@index([deleted_at])
+}
+
+/// Generated reply for one theme match and one objective (unique per pair).
+model ThemeItemResponse {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  themes_analysis_id    String
+  response_objective_id String
+  platform              String
+
+  /// LLM objective relevance 0.0–1.0 (not ThemesAnalysis.theme relevance 0–100)
+  relevance_score Float
+  reasoning       String
+  target_user     String
+  persona         String
+  response_text   String
+
+  /// LinkedIn pipeline: cold-email subject (references their post; plain text, single line)
+  outreach_email_subject String?
+  /// LinkedIn pipeline: cold-email body (plain text, personalized; separate from `response_text` social reply)
+  outreach_email_body   String?
+
+  themesAnalysis    ThemesAnalysis    @relation(fields: [themes_analysis_id], references: [id], onDelete: Cascade)
+  responseObjective ResponseObjective @relation(fields: [response_objective_id], references: [id], onDelete: Cascade)
+  prospectCandidates ProspectCandidate[]
+
+  @@unique([themes_analysis_id, response_objective_id])
+  @@index([themes_analysis_id])
+  @@index([response_objective_id])
+  @@index([deleted_at])
+}
+
+// Application Configuration
+model AppConfig {
+  id         String    @id @default(cuid())
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  // Configuration metadata
+  category    String // e.g., "scraping", "api", "performance", "ui", "platform"
+  key         String // e.g., "reddit_timeout", "sentiment_batch_size"
+  value       String // JSON string value
+  data_type   String // "number", "string", "boolean", "object", "array"
+  description String? // Human-readable description
+
+  // Validation
+  min_value Float? // For numeric values
+  max_value Float? // For numeric values
+  options   String? // JSON array of valid options for select fields
+
+  // UI metadata
+  display_name String? // Display name in UI
+  section      String? // UI section grouping
+  order        Int? // Display order within section
+
+  @@unique([category, key])
+  @@index([category])
+  @@index([deleted_at])
+}
+
+// ============================================
+// External source mentions (e.g. Hacker News via Algolia)
+// ============================================
+
+model SourceMention {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  source         String @default("hackernews")
+  keyword        String
+  source_item_id String
+  item_type      String // "story" | "comment"
+
+  author String?
+  title  String?
+  body   String?
+  url    String?
+
+  published_at      DateTime?
+  published_at_unix Int?
+
+  story_id  String?
+  parent_id String?
+
+  story_title       String?
+  story_url         String?
+  story_score       Int?
+  story_descendants Int?
+
+  raw_payload Json
+
+  @@unique([source, source_item_id, keyword])
+  @@index([keyword, published_at_unix])
+  @@index([story_id])
+  @@index([deleted_at])
+}
+
+model HnKeywordIngestCursor {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  keyword           String @unique
+  last_success_unix Int
+
+  @@index([deleted_at])
+}
+
+// ============================================
+// GitHub Search API signals (repos, code, future activity)
+// ============================================
+
+model GithubSignal {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  source       String @default("github")
+  /** Always `__global__` — dedupe key is (source, signal_type, external_id), not search term. */
+  keyword      String
+  signal_type  String // "repo" | "code" | "activity"
+  external_id  String
+
+  repo_full_name String
+  repo_id        Int
+  repo_url       String
+
+  title String?
+  body  String?
+
+  file_path String?
+  file_url  String?
+
+  author String?
+
+  stars    Int?
+  forks    Int?
+  language String?
+
+  event_type String?
+
+  published_at      DateTime?
+  published_at_unix Int?
+
+  license           String?
+  default_branch    String?
+  open_issues_count Int?
+  topics_json       String? // JSON array of topic names from enrichment
+
+  raw_payload Json
+
+  @@unique([source, signal_type, external_id])
+  @@index([published_at_unix])
+  @@index([repo_full_name])
+  @@index([signal_type])
+  @@index([deleted_at])
+}
+
+model GithubIngestCursor {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  keyword      String
+  mode         String // "repo" | "code" | "activity"
+  cursor_value String @default("")
+
+  @@unique([keyword, mode])
+  @@index([deleted_at])
+}
+
+// --- Person Intelligence / Prospect Routing ---
+
+enum ProspectOutreachBucket {
+  email
+  linkedin
+  both
+  investor_nurture
+  competitor_watch
+  excluded
+  manual_review
+}
+
+enum ProspectAssignmentStatus {
+  draft
+  pending_review
+  approved
+  sent
+  excluded
+}
+
+model ProspectIntelligenceSettings {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id String @unique
+
+  /// Gate inserting currentTitle/currentCompany into outreach copy
+  employment_confidence_for_title_company_in_copy Float @default(0.75)
+  minimum_evidence_for_auto_route                  Float @default(0.35)
+  default_competitor_list_id                       String?
+
+  project             Project         @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  defaultCompetitorList CompetitorList? @relation("DefaultCompetitorList", fields: [default_competitor_list_id], references: [id])
+
+  @@index([project_id])
+  @@index([deleted_at])
+}
+
+model CompetitorList {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id String
+  name       String
+
+  project                  Project                       @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  entries                  CompetitorListEntry[]
+  settingsAsDefaultForProject ProspectIntelligenceSettings[] @relation("DefaultCompetitorList")
+
+  @@index([project_id])
+  @@index([deleted_at])
+}
+
+model CompetitorListEntry {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  competitor_list_id String
+  /// company_name | domain | linkedin_company_pattern
+  kind               String @default("company_name")
+  pattern            String
+
+  competitorList CompetitorList @relation(fields: [competitor_list_id], references: [id], onDelete: Cascade)
+
+  @@index([competitor_list_id])
+  @@index([deleted_at])
+}
+
+model ProspectIdentity {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id                String
+  linkedin_url_normalized   String
+  email_normalized          String?
+  display_name              String?
+  primary_platform          String?
+  manual_classification_locked Boolean @default(false)
+  manual_routing_locked       Boolean   @default(false)
+  locked_fields_json          String?
+
+  project       Project                         @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  evidences     ProspectEvidenceRecord[]
+  snapshots     ProspectClassificationSnapshot[]
+  candidates    ProspectCandidate[]
+
+  @@unique([project_id, linkedin_url_normalized])
+  @@index([project_id])
+  @@index([deleted_at])
+}
+
+model ProspectEvidenceRecord {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  prospect_identity_id String
+  source               String
+  source_url           String?
+  raw_text             String
+  extracted_signals_json String // JSON string[]
+  confidence           Float
+  observed_at          DateTime
+  content_hash         String
+  metadata_json        String?
+
+  prospectIdentity ProspectIdentity @relation(fields: [prospect_identity_id], references: [id], onDelete: Cascade)
+
+  @@index([prospect_identity_id])
+  @@index([content_hash])
+  @@index([deleted_at])
+}
+
+model ProspectClassificationSnapshot {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  prospect_identity_id String
+  snapshot_version     Int      @default(1)
+  classifier_version   String
+  classification_json  String
+
+  employment_confidence Float
+  overall_confidence    Float
+  needs_review          Boolean
+  routing_recommendation String
+
+  computed_at    DateTime  @default(now())
+  superseded_at  DateTime?
+
+  locked_fields_json                String?
+  manual_override_classification_json String?
+
+  prospectIdentity ProspectIdentity @relation(fields: [prospect_identity_id], references: [id], onDelete: Cascade)
+
+  @@index([prospect_identity_id])
+  @@index([computed_at])
+  @@index([deleted_at])
+}
+
+model ProspectCandidate {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id             String
+  prospect_identity_id   String
+  themes_analysis_id     String?
+  post_id                Int?
+  theme_item_response_id String?
+
+  relevance_score_cached Float?
+  platform               String
+  headline_snapshot      String?
+
+  project           Project              @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  prospectIdentity  ProspectIdentity     @relation(fields: [prospect_identity_id], references: [id], onDelete: Cascade)
+  themesAnalysis    ThemesAnalysis?      @relation(fields: [themes_analysis_id], references: [id], onDelete: SetNull)
+  post              Post?                @relation(fields: [post_id], references: [id], onDelete: SetNull)
+  themeItemResponse ThemeItemResponse?   @relation(fields: [theme_item_response_id], references: [id], onDelete: SetNull)
+
+  bucketAssignments OutreachBucketAssignment[]
+
+  @@index([project_id])
+  @@index([prospect_identity_id])
+  @@index([themes_analysis_id])
+  @@index([post_id])
+  @@index([deleted_at])
+}
+
+model ProspectRoutingRule {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id      String
+  name            String
+  enabled         Boolean @default(true)
+  priority        Int     @default(100)
+  notes           String?
+  condition_logic String  @default("all")
+  conditions_json String
+  actions_json    String
+  rule_version    Int     @default(1)
+
+  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  bucketAssignments OutreachBucketAssignment[]
+
+  @@index([project_id, priority])
+  @@index([deleted_at])
+}
+
+model OutreachTemplate {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  project_id    String
+  name          String
+  channel       String
+  template_type String
+
+  applies_to_role_categories_json String
+  applies_to_function_tags_json   String
+  applies_to_seniority_json       String?
+
+  employment_confidence_threshold      Float   @default(0.75)
+  requires_high_confidence_employment Boolean @default(false)
+  requires_source_post_context         Boolean @default(false)
+
+  subject_template String?
+  body_template    String
+  variables_json   String
+  fallback_behavior_json String
+
+  priority Int     @default(100)
+  enabled  Boolean @default(true)
+
+  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  bucketAssignments OutreachBucketAssignment[]
+
+  @@index([project_id, channel])
+  @@index([deleted_at])
+}
+
+model OutreachBucketAssignment {
+  id         String    @id @default("")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  prospect_candidate_id String
+  bucket                ProspectOutreachBucket
+  status                ProspectAssignmentStatus @default(draft)
+
+  rule_id_matched String?
+  rule_version    Int?
+  reason          String?
+  template_id     String?
+
+  suppress_title_company      Boolean @default(false)
+  require_manual_approval     Boolean @default(false)
+
+  draft_subject     String?
+  draft_body        String?
+  draft_created_at  DateTime?
+
+  prospectCandidate ProspectCandidate @relation(fields: [prospect_candidate_id], references: [id], onDelete: Cascade)
+  routingRule       ProspectRoutingRule? @relation(fields: [rule_id_matched], references: [id], onDelete: SetNull)
+  template          OutreachTemplate?    @relation(fields: [template_id], references: [id], onDelete: SetNull)
+
+  @@index([prospect_candidate_id])
+  @@index([bucket, status])
+  @@index([deleted_at])
+}

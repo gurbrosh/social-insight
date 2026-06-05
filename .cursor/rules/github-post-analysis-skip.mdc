@@ -1,0 +1,17 @@
+# GitHub `Post` rows (`platform: "github"`)
+
+Repo-ingest posts are **not** social chatter; do not run **SENTIMENT**, **CHATTER**, **NETWORK**, or **NEWS** LLM on them.
+
+## Task-based analysis (`AnalysisTask`)
+
+- Rules live in `lib/analysis-post-source-policy.ts` (`getPostSourceAnalysisPolicy` → `skipSentiment`, `skipNetwork`, `skipChatter`; `excludeFromNewsBatch` for batch news).
+- `enqueueRunTasks` / `enqueueRunTasksForSteps` respect `shouldEnqueuePostAnalysisStep`.
+
+## Legacy / batch paths that use `sentiment: null` as “pending”
+
+- Any Post query for “needs sentiment” must merge `postWhereExcludeGithubFromLegacySentimentPipeline` from `analysis-post-source-policy.ts` (or `platform: { not: "github" }`).
+- GitHub repo upserts set `ai_processed_at` and must **not** rely on clearing `sentiment` on every run (`stampGithubPostsIngestAnalysisSkipped` in `analysis-run.ts` stamps skip; it does **not** force `sentiment: null` on enqueue).
+
+## Worker
+
+- `lib/analysis-worker.ts` already no-ops CHATTER/NETWORK/SENTIMENT for GitHub; NEWS batches strip GitHub ids before LLM.

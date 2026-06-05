@@ -1,0 +1,14 @@
+HTTP/1.1 302 Found
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-pathname: /api/auth/callback/credentials
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+location: http://localhost:3000/admin/scrapers
+set-cookie: next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Fadmin%2Fscrapers; Path=/; HttpOnly; SameSite=Lax
+set-cookie: next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..hYTruJl_6y1bQFV7.Y7BlxUPg88OOaFDDVvwFWfAzS85vLvwLgRConHT5aRMmSqHeqUnf-1acx0iscjKOLTBzoYGk-YAjwFoNOfEyyiC661xfsNMwvIZqt9wzOg1oRTvqasQHu_UbfPNo3ebruHqoXnMvXfhPCf3-iBUphRnhmrSZYxPn62Zpeg6BkfcPoNuAKaus2tCF-u78Fmag-iA3SuS0BqN-5Lt9hoYg2OrX-xOciO5CzlslMXVEGvrJc0w92me6iq47pb8w2HushritnKHvGOENKyGqj4hNEDR58y_vKCXFbtNCulQiW0o.5QBA3SAnj4T9Z4NMTZoGug; Path=/; Expires=Fri, 12 Dec 2025 01:03:19 GMT; HttpOnly; SameSite=Lax
+Date: Wed, 12 Nov 2025 01:03:19 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+

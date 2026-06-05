@@ -1,0 +1,148 @@
+# Sample: npm run classify:evaluate -- tmp/linkedin-prospect-classification-288-eval.csv
+# (288 data rows + header, slice from tmp/linkedin-prospect-classification-295-random.csv)
+# Captured for harness documentation; re-run after classifier changes for before/after.
+
+> crunchycone-vanilla-starter-project@0.2.0 classify:evaluate
+> tsx lib/prospect-intelligence/eval/run-csv-eval.ts tmp/linkedin-prospect-classification-288-eval.csv
+
+--- Classification CSV evaluation ---
+total rows: 288
+open_to_work_status:
+  not_observed: 286
+  public_signal_detected: 1
+  text_signal_detected: 1
+unknown-only role_categories: 79 (27.43%)
+unknown-only + needs_review=no: 0
+unknown role_categories with both current_title and current_company: 13
+unknown-only + any non-empty function_tags: 79
+unknown-only + meaningful function_tags: 25
+founder (role_categories): 48
+founder_signal (profile_flags): 48
+founder in roles without founder_signal: 0
+likely founder false positives (heuristic): 22
+investor (role_categories): 7
+founder + investor overlap rows: 3
+venture-investor headline with founder role: 0
+student (role_categories): 11
+student + current_company non-empty: 3
+safe_professional_reference contains "your perspective shared on the thread": 21
+safe_professional_reference contains "your professional background": 42
+safe_professional_reference contains "your technical and infrastructure work": 0
+current_company soft suspicious (Former/Previously/Ex-/at scale): 1
+current_company hard suspicious (. Former / . Previously / at Scale patterns): 1
+current_title looks like education: 2
+needs_review=yes rate: 56.94% (164 rows)
+
+--- Top suspicious rows (score-ranked) ---
+  [row 82 score=8] unknown_only_meaningful_function_tags,unknown_with_title_and_company,education_like_current_title | Subhradeep Ray | GoLang && Java || Docker && Kubernetes || MCA @NITJSR 2020
+    roles=unknown | fn=kubernetes;platform | title=MCA | co=NITJSR 2020
+    flags=multiple_roles_signal
+    safe_ref=your professional perspective
+  [row 5 score=7] hard_suspicious_company,unknown_with_title_and_company | Michael Herman | VP, Head of Channels & Alliances, Europe at Check Point. Former Netsko
+    roles=unknown | fn=unknown | title=VP, Head of Channels & Alliances, Europe | co=Check Point. Former Netskope, Palo Alto Networks, IBM, Cisco
+    flags=
+    safe_ref=your professional perspective
+  [row 104 score=5] unknown_only_meaningful_function_tags,unknown_with_title_and_company | Alexandre Cuoci | Product at Replit
+    roles=unknown | fn=product | title=Product | co=Replit
+    flags=
+    safe_ref=your professional perspective
+  [row 162 score=5] unknown_only_meaningful_function_tags,unknown_with_title_and_company | Kye Matthews-Mason | Technical Recruiting @ Airbnb | Talent Mapping, Strategic Sourcing, Bu
+    roles=unknown | fn=recruiting | title=Technical Recruiting | co=Airbnb
+    flags=weak_post_context_signal
+    safe_ref=your professional perspective
+  [row 163 score=5] unknown_only_meaningful_function_tags,unknown_with_title_and_company | Anisha Arora | Product Owner @ The LCF Group | Transitioning into AI Product Manageme
+    roles=unknown | fn=ai_ml;data;data_analytics;product | title=Product Owner | co=The LCF Group
+    flags=multiple_roles_signal;weak_post_context_signal
+    safe_ref=your AI product perspective
+  [row 257 score=5] unknown_with_title_and_company,education_like_current_title | Caleb Pong | Making content easy with Vyra | CS @ Brown | Prev @ Eightfold
+    roles=unknown | fn=unknown | title=CS | co=Brown
+    flags=multiple_roles_signal
+    safe_ref=your perspective shared on the thread
+  [row 17 score=4] likely_founder_false_positive | Mahendra Yelukati | Director – Application Security | Author of “Application Security: A S
+    roles=investor;founder;security_practitioner;technical_influencer | fn=cloud;platform;security;appsec;application_security;ai_ml | title= | co=
+    flags=ambiguous_employment;founder_signal;investor_signal;multiple_roles_signal;weak_post_context_signal
+    safe_ref=your investing perspective
+  [row 29 score=4] likely_founder_false_positive | Loma Naser | #1 Disability Voice AU | Redesigning Disability Services. Together | P
+    roles=founder | fn=unknown | title= | co=
+    flags=ambiguous_employment;founder_signal;multiple_roles_signal
+    safe_ref=your perspective shared on the thread
+  [row 79 score=4] likely_founder_false_positive | Roel Caers | CEO @ Guardsquare | Mobile Application Protection
+    roles=founder | fn=unknown | title=CEO | co=Guardsquare
+    flags=founder_signal
+    safe_ref=your professional perspective
+  [row 85 score=4] likely_founder_false_positive | Vaishnavi Gudur | AI/ML Infra & Full-Stack | Speaker | Author | Guest Editor | Mentor
+    roles=founder;consultant;software_engineer;full_stack_engineer;technical_influencer | fn=platform;ai_ml | title= | co=
+    flags=ambiguous_employment;consultant_signal;founder_signal;multiple_roles_signal
+    safe_ref=your software development work
+  [row 88 score=4] likely_founder_false_positive | Richard Mba | Legal Counsel for Fintech, Tech & Crypto Startups | Contracts, Complia
+    roles=founder | fn=unknown | title= | co=
+    flags=ambiguous_employment;founder_signal;multiple_roles_signal
+    safe_ref=your perspective shared on the thread
+  [row 92 score=4] likely_founder_false_positive | Ajuzie Chimezirim | AI Automation for Marketing Agencies | Workflow Automation | Eliminate
+    roles=founder | fn=ai_ml;recruiting | title= | co=
+    flags=ambiguous_employment;founder_signal;multiple_roles_signal
+    safe_ref=your professional perspective
+  [row 98 score=4] likely_founder_false_positive | Rogelio Sánchez Cusi | Diseñador Gráfico y Editor de Video | Impulsando marcas en Redes Socia
+    roles=founder | fn=unknown | title= | co=
+    flags=ambiguous_employment;founder_signal;multiple_roles_signal
+    safe_ref=your professional perspective
+  [row 100 score=4] likely_founder_false_positive | Sass Babayan | CEO of Wyntec; CEO of MetaCato
+    roles=founder | fn=unknown | title= | co=
+    flags=founder_signal
+    safe_ref=your professional perspective
+  [row 112 score=4] likely_founder_false_positive | Denise T. | Partner at Gradient (Early Stage AI Fund)
+    roles=founder | fn=ai_ml | title=Partner | co=Gradient
+    flags=founder_signal
+    safe_ref=your perspective shared on the thread
+  [row 145 score=4] likely_founder_false_positive | Jenny Baker | eCommerce Digital Content | Amazon Specialist | Al Innovator | Digital
+    roles=founder | fn=growth | title= | co=
+    flags=ambiguous_employment;founder_signal;multiple_roles_signal
+    safe_ref=your professional perspective
+  [row 151 score=4] likely_founder_false_positive | Tom Sadon | VP of Product Marketing at Silverfort
+    roles=founder;product_marketing;marketing_leader;business_leader | fn=go_to_market;marketing;product;product_marketing | title=VP of Product Marketing | co=Silverfort
+    flags=founder_signal;non_target_function_signal
+    safe_ref=your product marketing work
+  [row 153 score=4] likely_founder_false_positive | Sejoe Thomas | BD @ Qualcomm - AI | IoT | XR | 5G | mmW | FWA | Wi-Fi | O-RAN
+    roles=founder | fn=ai_ml | title=BD | co=Qualcomm
+    flags=founder_signal;multiple_roles_signal
+    safe_ref=your perspective shared on the thread
+  [row 175 score=4] likely_founder_false_positive | Benjamin Miller | Making Sense of the World by Making Security Make Sense
+    roles=founder;security_practitioner | fn=security | title= | co=
+    flags=founder_signal
+    safe_ref=your perspective on security operations
+  [row 183 score=4] likely_founder_false_positive | Kintan Brahmbhatt | CEO, Olto.com - Agentic Demo Automation
+    roles=founder | fn=agentic_ai;ai_ml | title= | co=
+    flags=founder_signal;weak_post_context_signal
+    safe_ref=your founder and agentic AI product perspective
+
+--- Threshold / regression gates ---
+HARD FAIL:
+  - hard suspicious current_company: 1 (must be 0)
+WARN: education-like current_title rows: 2 (review extraction vs golden suite)
+WARN: unknown-only role_categories 27.43% exceeds 15% (warn)
+WARN: unknown with both current_title and current_company: 13 (warn, cap 3)
+WARN: unknown-only with meaningful function_tags: 25 (warn, cap 5)
+WARN: founder + investor overlap rows: 3 (warn unless dual-mandate evidence)
+WARN: needs_review rate high: 56.94%
+WARN: No --baseline file: skipped generic safe-reference regression comparison.
+WARN: 22 row(s) flagged likely founder false positives (heuristic; review founder_fires headlines)
+
+Hard suspicious current_company samples:
+  5: company="Check Point. Former Netskope, Palo Alto Networks, IBM, Cisco executive." | VP, Head of Channels & Alliances, Europe at Check Point. Former Netskope, Palo A
+
+Likely founder false positive samples:
+  17: Mahendra Yelukati
+  29: Loma Naser
+  79: Roel Caers
+  85: Vaishnavi Gudur
+  88: Richard Mba
+  92: Ajuzie Chimezirim
+  98: Rogelio Sánchez Cusi
+  100: Sass Babayan
+  112: Denise T.
+  145: Jenny Baker
+  151: Tom Sadon
+  153: Sejoe Thomas
+  175: Benjamin Miller
+  183: Kintan Brahmbhatt
+  185: Natalie On

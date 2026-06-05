@@ -1,0 +1,22 @@
+[
+  {
+    "linkedinUrl": "https://www.linkedin.com/in/example-user-1",
+    "firstName": "Alex",
+    "lastName": "Example",
+    "summary": "Example professional summary for parser tests.",
+    "currentPositions": [
+      {
+        "title": "Senior Software Engineer",
+        "companyName": "Example Corp",
+        "startDate": "2022-01"
+      }
+    ],
+    "location": "Example City, EX",
+    "premium": false,
+    "openProfile": true,
+    "query": {
+      "company": "https://www.linkedin.com/company/example-corp",
+      "jobTitle": "Software Engineer"
+    }
+  }
+]

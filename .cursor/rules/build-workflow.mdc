@@ -1,0 +1,138 @@
+---
+description: Build verification and commit workflow rules
+globs: ["**/*"]
+---
+
+# Build Verification Workflow
+
+## Overview
+
+This rule establishes a mandatory build verification process before committing code. It prevents TypeScript errors, build failures, and ensures code quality standards are maintained.
+
+## Pre-Commit Build Rule
+
+**CRITICAL**: Before committing any code changes, you MUST:
+
+1. **Run the build command**: `npm run build`
+2. **Fix ALL errors**: TypeScript errors, build failures, linting issues
+3. **Verify build success**: Ensure the build completes without errors
+4. **Only then commit**: After successful build verification
+
+## Build Verification Process
+
+### 1. Run Build Command
+```bash
+npm run build
+```
+
+### 2. Address Common Issues
+
+**TypeScript Errors**:
+- Fix type mismatches
+- Add missing type annotations  
+- Remove invalid properties from configuration objects
+- Ensure external library interface compliance
+
+**Missing Dependencies**:
+- Install missing packages: `npm install package-name`
+- Update package.json if needed
+
+**Import/Export Issues**:
+- Fix broken import paths
+- Verify export declarations
+- Check for circular dependencies
+
+**Configuration Errors**:
+- Validate configuration object properties
+- Ensure compliance with external library interfaces
+- Remove deprecated or invalid config options
+
+### 3. Verify Success
+Build must complete with:
+- ✅ Zero TypeScript errors
+- ✅ Zero build failures  
+- ✅ All dependencies resolved
+- ✅ Clean build output
+
+## Common Build Fixes
+
+### External Library Interface Compliance
+When working with external libraries (crunchycone-lib, etc.):
+- Only use properties defined in the library's TypeScript interfaces
+- Remove invalid configuration properties
+- Check library documentation for correct usage
+
+### Dynamic Rendering Requirements
+Add `export const dynamic = "force-dynamic";` to:
+- Admin pages and API routes
+- Routes using CLI commands or external processes
+- Authentication-dependent routes
+- Environment variable access routes
+
+### Dependency Management
+- Install missing dependencies immediately
+- Use exact versions that match the project's requirements
+- Update package-lock.json as needed
+
+## Commit Message Standards
+
+After successful build, use descriptive commit messages:
+```
+Fix build errors and [brief description]
+
+- Specific fix 1
+- Specific fix 2  
+- Any new features added
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+## Anti-Patterns to Avoid
+
+❌ **Never commit without building**
+❌ **Never ignore TypeScript errors**  
+❌ **Never commit broken builds**
+❌ **Never skip dependency installation**
+❌ **Never use deprecated configuration options**
+
+## Build Success Indicators
+
+✅ Build completes without errors
+✅ All TypeScript checks pass
+✅ No missing dependency warnings
+✅ Clean terminal output
+✅ Generated files are properly created
+
+## Automation Opportunities
+
+Consider adding pre-commit hooks:
+```json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build"
+    }
+  }
+}
+```
+
+## Quality Gates
+
+The build process serves as a quality gate ensuring:
+- **Type Safety**: All TypeScript errors resolved
+- **Dependency Integrity**: All packages properly installed
+- **Configuration Validity**: All config objects compliant with interfaces
+- **Build Reproducibility**: Clean builds across environments
+- **Production Readiness**: Code that will deploy successfully
+
+## Emergency Fixes
+
+If build fails during urgent fixes:
+1. Identify the specific error
+2. Make minimal fix to resolve build
+3. Commit the fix immediately
+4. Plan proper refactoring for later
+
+Remember: A broken build affects the entire team and blocks deployments.

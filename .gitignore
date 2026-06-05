@@ -1,0 +1,197 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Cursor
+.cursor/prompts/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Logs
+logs
+*.log
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Temporary folders
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.fleet
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Accidental second SQLite when `npx prisma` runs from `prisma/` (resolves ./prisma/db → prisma/prisma/db)
+prisma/prisma/
+
+# Local DB dedup backups (see docs / 12-CRITICAL-database-paths)
+prisma/db/prod.db.backup-before-dedup-*
+# Timestamped SQLite copies (e.g. prod.db.backup-2026-03-26T17-14-44)
+prisma/db/prod.db.backup-*
+
+# Local development
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Production builds
+dist/
+build/
+
+# Email service temp files (if any)
+emails/
+email-templates/temp/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Certificate files
+*.crt
+*.key
+*.pem
+
+# Security
+.htpasswd
+.htaccess
+
+# Package manager
+package-lock.json.backup
+yarn.lock.backup
+
+# Test results
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Local uploads folder - mostly for dev
+uploads/*
+
+# CrunchyCone database upload status file
+.crunchycone-upload-status
+
+# Old project DB snapshots (may contain API tokens in stored data)
+backups/
+
+# Local SQLite — do not commit to GitHub
+prisma/db/*.db
+prisma/db/*.db-wal
+prisma/db/*.db-shm
+prisma/db/*.corrupted-*

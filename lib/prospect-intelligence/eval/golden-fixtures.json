@@ -1,0 +1,564 @@
+{
+  "version": 2,
+  "neutralPostDefault": "Thread discussion on enterprise technology and professional practice.",
+  "fixtures": [
+    {
+      "id": "otw_roustabout_oil_gas",
+      "headline": "Roustabout | Field Operations | Seeking Opportunities in Oil & Gas",
+      "expect": {
+        "roleCategoriesIncludes": ["job_seeker", "field_operations"],
+        "openToWorkStatus": "text_signal_detected",
+        "openToWorkEvidenceSource": "headline",
+        "profileFlagsIncludes": ["job_search_signal"]
+      }
+    },
+    {
+      "id": "otw_cyber_fullstack_internship",
+      "headline": "Cybersecurity-Focused Full Stack Developer | Building Secure Web Apps | Open to Internship Opportunities",
+      "expect": {
+        "roleCategoriesIncludes": ["job_seeker", "security_practitioner", "software_engineer"],
+        "openToWorkStatus": "text_signal_detected",
+        "openToWorkEvidenceSource": "headline",
+        "profileFlagsIncludes": ["job_search_signal"]
+      }
+    },
+    {
+      "id": "otw_frontend_immediate_joiner",
+      "headline": "Frontend Developer (React.js · Next.js · TypeScript) · Immediate Joiner · Open to Full-time & Freelance",
+      "expect": {
+        "roleCategoriesIncludes": ["job_seeker", "frontend_engineer", "software_engineer"],
+        "openToWorkStatus": "text_signal_detected",
+        "openToWorkEvidenceSource": "headline",
+        "profileFlagsIncludes": ["job_search_signal"]
+      }
+    },
+    {
+      "id": "otw_neg_open_source_contributor",
+      "headline": "Open Source Contributor | Software Engineer",
+      "expect": {
+        "openToWorkStatus": "not_observed",
+        "profileFlagsExcludes": ["open_to_work_text_signal", "open_to_work_public_signal"]
+      }
+    },
+    {
+      "id": "otw_neg_openai_developer",
+      "headline": "OpenAI Developer | AI Engineer",
+      "expect": {
+        "openToWorkStatus": "not_observed",
+        "profileFlagsExcludes": ["open_to_work_text_signal", "open_to_work_public_signal"]
+      }
+    },
+    {
+      "id": "otw_neg_open_collaboration_ai",
+      "headline": "Open for collaboration on AI projects",
+      "expect": {
+        "openToWorkStatus": "not_observed",
+        "profileFlagsExcludes": ["open_to_work_text_signal", "open_to_work_public_signal"]
+      }
+    },
+    {
+      "id": "otw_neg_open_to_relocation",
+      "headline": "Open to Relocation | Software Engineer",
+      "expect": {
+        "openToWorkStatus": "not_observed",
+        "profileFlagsExcludes": ["open_to_work_text_signal", "open_to_work_public_signal"]
+      }
+    },
+    {
+      "id": "otw_neg_dms_open_pm",
+      "headline": "DMs open | Product Manager",
+      "expect": {
+        "openToWorkStatus": "not_observed",
+        "profileFlagsExcludes": ["open_to_work_text_signal", "open_to_work_public_signal"]
+      }
+    },
+    {
+      "id": "otw_neg_openalgo_contributor",
+      "headline": "OpenAlgo contributor",
+      "expect": {
+        "openToWorkStatus": "not_observed",
+        "profileFlagsExcludes": ["open_to_work_text_signal", "open_to_work_public_signal"]
+      }
+    },
+    {
+      "id": "founder_ceo_explicit",
+      "headline": "Founder & CEO @ Hypatos.ai | AI Agents for Business Services",
+      "expect": {
+        "roleCategoriesIncludes": ["founder"],
+        "profileFlagsIncludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "cofounder_at_company",
+      "headline": "Co-Founder at ExampleCo",
+      "expect": {
+        "roleCategoriesIncludes": ["founder"],
+        "profileFlagsIncludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_comma_company",
+      "headline": "Founder, Example Labs | AI & Security Principal Architect",
+      "expect": {
+        "roleCategoriesIncludes": ["founder"],
+        "profileFlagsIncludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_product_leader_pipe",
+      "headline": "Founder | Product Leader | Creative | Builder",
+      "expect": {
+        "roleCategoriesIncludes": ["founder", "product_leader"],
+        "profileFlagsIncludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "cofounder_cro_at",
+      "headline": "Co-Founder/CRO @ ExampleCo",
+      "expect": {
+        "roleCategoriesIncludes": ["founder", "revenue_leader"],
+        "profileFlagsIncludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "ceo_cofounder_at_okta",
+      "headline": "CEO & Co-Founder at Okta",
+      "expect": {
+        "roleCategoriesIncludes": ["founder", "executive_leader"],
+        "profileFlagsIncludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_of_stealth",
+      "headline": "Founder of Stealth Net AI | Founder of Red Sentry",
+      "expect": {
+        "roleCategoriesIncludes": ["founder"],
+        "profileFlagsIncludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "owner_at_it_necessity",
+      "headline": "Owner at IT-Necessity",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["founder", "owner_operator"],
+        "profileFlagsIncludesAnyOf": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_product_marketing_indeed",
+      "headline": "Product Marketing Lead @ Indeed | Go-To-Market Launches for Enterprise, Ads & AI Products",
+      "expect": {
+        "roleCategoriesIncludes": ["product_marketing", "marketing_leader"],
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_engineering_only",
+      "headline": "Engineering",
+      "expect": {
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_enterprise_ae_contentsquare",
+      "headline": "Senior Enterprise AE @ Contentsquare",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["sales_account", "sales_leader"],
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_nvidia_talent_acquisition",
+      "headline": "Talent Acquisition - NVIDIA Networking",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["recruiter", "technical_recruiter"],
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_hybrid_systems_architect_orocore",
+      "headline": "Hybrid Systems Architect at Orocore",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["technical_architect", "systems_architect"],
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_security_engineer_checkpoint",
+      "headline": "Security Engineer @ Checkpoint | SASE | SOC | EDR/XDR | PAM | DLP",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["security_practitioner"],
+        "roleCategoriesExcludes": ["founder", "investor"],
+        "profileFlagsExcludes": ["founder_signal", "investor_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_btech_student",
+      "headline": "B.Tech CSE Student | Aspiring Software Developer | Exploring Internships",
+      "expect": {
+        "roleCategoriesIncludes": ["student"],
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_venture_investor",
+      "headline": "Venture Investor",
+      "expect": {
+        "roleCategoriesIncludes": ["investor", "venture_capital"],
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsIncludes": ["investor_signal"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "founder_neg_chief_of_staff_to_founder",
+      "headline": "Chief of Staff to the Founder - Example Group | Chief People Officer - Example Co",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["chief_of_staff", "people_leader", "hr_leader"],
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "past_founder_headline_alumni",
+      "headline": "Former Founder | Alum | Computer Science Graduate",
+      "expect": {
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"],
+        "profileFlagsIncludes": ["past_founder_signal", "past_role_signal"]
+      }
+    },
+    {
+      "id": "edu_ms_cs_ub_not_employment",
+      "headline": "AI Engineer | Open Source Contributor | Software Engineer | MS CS @ UB",
+      "expect": {
+        "roleCategoriesIncludes": ["ai_engineer", "software_engineer"],
+        "educationAreaContains": "MS CS",
+        "educationInstitutionContains": "UB",
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true
+      }
+    },
+    {
+      "id": "edu_vyra_cs_brown_eightfold",
+      "headline": "Making content easy with Vyra | CS @ Brown | Prev @ Eightfold",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["product_builder", "content_creator", "student", "early_career"],
+        "educationAreaContains": "CS",
+        "educationInstitutionContains": "Brown",
+        "pastCompanyContains": "Eightfold",
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true
+      }
+    },
+    {
+      "id": "edu_golang_java_nitjsr",
+      "headline": "GoLang && Java || Docker && Kubernetes || MCA @NITJSR 2020",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["software_engineer", "platform_engineer"],
+        "functionTagsIncludes": ["golang", "java", "kubernetes"],
+        "educationAreaContains": "MCA",
+        "educationInstitutionContains": "NITJSR",
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true
+      }
+    },
+    {
+      "id": "edu_senior_kennesaw",
+      "headline": "Senior at Kennesaw State University | Major- Information Systems | Minor-Information Security",
+      "expect": {
+        "roleCategoriesIncludes": ["student"],
+        "profileFlagsIncludes": ["student_signal"],
+        "educationInstitutionContains": "Kennesaw State University",
+        "educationAreaContains": "Information Systems",
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true
+      }
+    },
+    {
+      "id": "edu_telkom_bachelor_cs",
+      "headline": "ALP’26 | McKinsey Forward’26 | Bachelor of Computer Science at Telkom University",
+      "expect": {
+        "roleCategoriesIncludes": ["student"],
+        "profileFlagsIncludes": ["student_signal"],
+        "educationAreaContains": "Bachelor of Computer Science",
+        "educationInstitutionContains": "Telkom University",
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true
+      }
+    },
+    {
+      "id": "past_formerly_partner_nea",
+      "headline": "Formerly Partner @ NEA | Early Stage Investor in Category Creating Companies",
+      "expect": {
+        "roleCategoriesIncludes": ["investor", "venture_capital"],
+        "profileFlagsIncludes": ["past_role_signal", "investor_signal"],
+        "pastTitleContains": "Partner",
+        "pastCompanyContains": "NEA",
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true
+      }
+    },
+    {
+      "id": "past_ex_cso_zscaler",
+      "headline": "Ex- Chief Strategy Officer at Zscaler Inc.",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["executive_leader", "strategy_leader"],
+        "profileFlagsIncludes": ["past_role_signal"],
+        "pastTitleContains": "Strategy",
+        "pastCompanyContains": "Zscaler",
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true
+      }
+    },
+    {
+      "id": "past_presswhizz_previously_cofounder",
+      "headline": "Partner and advisor at PressWhizz.com. Previously co-founder of SleepAdvisor.org (acq).",
+      "expect": {
+        "currentTitleContains": "Partner",
+        "currentCompanyContains": "PressWhizz",
+        "pastTitleContains": "founder",
+        "pastCompanyContains": "SleepAdvisor",
+        "currentCompanyExcludes": "Previously",
+        "roleCategoriesIncludes": ["advisor", "consultant", "business_leader"],
+        "roleCategoriesExcludes": ["founder"],
+        "profileFlagsExcludes": ["founder_signal"]
+      }
+    },
+    {
+      "id": "past_check_point_former_executive",
+      "headline": "VP, Head of Channels & Alliances, Europe at Check Point. Former Netskope, Palo Alto Networks, IBM, Cisco executive.",
+      "expect": {
+        "roleCategoriesIncludes": ["channel_leader", "partnerships_leader", "gtm_leader"],
+        "currentTitleContains": "VP",
+        "currentCompanyContains": "Check Point",
+        "pastCompanyContainsAll": ["Netskope", "Palo Alto", "IBM", "Cisco"],
+        "currentCompanyExcludes": "Former"
+      }
+    },
+    {
+      "id": "parse_identity_at_scale_not_company",
+      "headline": "Identity & Access Management Executive | Enterprise, Cloud & Workload Identity at Scale",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["security_practitioner", "security_leader"],
+        "functionTagsIncludesAnyOf": ["identity_access", "cloud", "cybersecurity"],
+        "currentCompanyExcludes": ["Scale", " at Scale"],
+        "currentTitleNotEquals": "Enterprise, Cloud & Workload Identity"
+      }
+    },
+    {
+      "id": "map_vp_product_adyen",
+      "headline": "VP Product at Adyen",
+      "expect": {
+        "roleCategoriesIncludes": ["product_leader"],
+        "currentTitleContains": "VP Product",
+        "currentCompanyContains": "Adyen"
+      }
+    },
+    {
+      "id": "map_product_manager_silverfort_cissp",
+      "headline": "Product Manager @ Silverfort | CISSP",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["product_leader", "product_manager"],
+        "roleCategoriesIncludes": ["security_practitioner"],
+        "currentTitleContains": "Product Manager",
+        "currentCompanyContains": "Silverfort"
+      }
+    },
+    {
+      "id": "map_chief_data_ai_officer_orange",
+      "headline": "Chief Data and AI Officer at Orange Business",
+      "expect": {
+        "roleCategoriesIncludes": ["data_leader", "ai_leader", "executive_leader"],
+        "seniorityEquals": "c_level"
+      }
+    },
+    {
+      "id": "map_cortex_palo_alto",
+      "headline": "Director, Threat and Detection, Cortex at Palo Alto Networks",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["security_leader", "security_practitioner"],
+        "functionTagsIncludesAnyOf": ["cybersecurity", "security", "network_security"]
+      }
+    },
+    {
+      "id": "map_pen_tester",
+      "headline": "Network Penetration Tester | VAPT | ISO 27001 | GRC | Ethical Hacking",
+      "expect": {
+        "roleCategoriesIncludes": ["security_practitioner"],
+        "functionTagsIncludes": ["penetration_testing"]
+      }
+    },
+    {
+      "id": "map_head_marketing_growth_saas",
+      "headline": "Head of Marketing | Demand Generation | Growth Marketing | Marketing Ops | SaaS B2B",
+      "expect": {
+        "roleCategoriesIncludes": ["marketing_leader", "growth_leader"],
+        "functionTagsIncludesAnyOf": ["growth_marketing", "lead_generation", "marketing"]
+      }
+    },
+    {
+      "id": "map_technical_recruiting_airbnb",
+      "headline": "Technical Recruiting @ Airbnb | Talent Mapping, Strategic Sourcing, Building Amazing Teams",
+      "expect": {
+        "roleCategoriesIncludesAnyOf": ["recruiter", "technical_recruiter"],
+        "functionTagsIncludes": ["recruiting"],
+        "currentTitleContains": "Technical Recruiting",
+        "currentCompanyContains": "Airbnb"
+      }
+    },
+    {
+      "id": "map_partner_sierra_ventures",
+      "headline": "Partner at Sierra Ventures",
+      "expect": {
+        "roleCategoriesIncludes": ["investor", "venture_capital"],
+        "profileFlagsIncludes": ["investor_signal"],
+        "currentTitleContains": "Partner",
+        "currentCompanyContains": "Sierra Ventures"
+      }
+    },
+    {
+      "id": "map_ai_integrator",
+      "headline": "AI Integrator",
+      "expect": {
+        "roleCategoriesIncludes": ["ai_practitioner"],
+        "functionTagsIncludes": ["ai_ml"]
+      }
+    },
+    {
+      "id": "map_chief_ai_evangelist",
+      "headline": "Chief AI Evangelist",
+      "expect": {
+        "roleCategoriesIncludes": ["ai_leader", "technical_evangelist"],
+        "functionTagsIncludesAnyOf": ["ai_ml", "evangelism"]
+      }
+    },
+    {
+      "id": "map_chief_product_officer",
+      "headline": "Chief Product Officer",
+      "expect": {
+        "roleCategoriesIncludes": ["product_leader", "executive_leader"],
+        "seniorityEquals": "c_level"
+      }
+    },
+    {
+      "id": "emp_experience_overrides_vague_headline",
+      "headline": "Building secure AI identity infrastructure | Thought leader",
+      "profileExperienceRoles": [
+        {
+          "title": "VP Engineering",
+          "company": "Acme Security",
+          "dateRange": "2022 - Present",
+          "isCurrent": true
+        }
+      ],
+      "expect": {
+        "employmentSourceEquals": "profile_experience",
+        "currentTitleEquals": "VP Engineering",
+        "currentCompanyEquals": "Acme Security",
+        "currentTitleNotEquals": "Building secure AI identity infrastructure"
+      }
+    },
+    {
+      "id": "emp_multiple_active_roles_primary_operator",
+      "headline": "Founder | Advisor to startups",
+      "profileExperienceRoles": [
+        {
+          "title": "Advisor",
+          "company": "Startup Collective",
+          "dateRange": "2020 - Present",
+          "isCurrent": true
+        },
+        {
+          "title": "Co-Founder & CEO",
+          "company": "Platform Co",
+          "dateRange": "2023 - Present",
+          "isCurrent": true
+        }
+      ],
+      "expect": {
+        "employmentSourceEquals": "profile_experience",
+        "currentTitleContains": "Co-Founder",
+        "currentCompanyEquals": "Platform Co",
+        "profileFlagsIncludes": ["multiple_current_roles"],
+        "currentRolesMinCount": 2,
+        "employmentNeedsReview": true
+      }
+    },
+    {
+      "id": "emp_education_not_current_employment",
+      "headline": "Aspiring software builder | learning and shipping",
+      "profileExperienceRoles": [
+        {
+          "title": "MS CS",
+          "company": "State University",
+          "dateRange": "2024 - Present",
+          "isCurrent": true
+        },
+        {
+          "title": "Software Engineer",
+          "company": "Tech Corp",
+          "dateRange": "2022 - 2024",
+          "endDate": "2024-06"
+        }
+      ],
+      "expect": {
+        "employmentSourceEquals": "profile_experience",
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true,
+        "educationInstitutionContains": "State University",
+        "profileFlagsIncludes": ["past_role_signal"]
+      }
+    },
+    {
+      "id": "emp_past_role_not_current",
+      "headline": "Product Leader | Ex-BigCo",
+      "profileExperienceRoles": [
+        {
+          "title": "Director of Product",
+          "company": "BigCo",
+          "dateRange": "2018 - 2023",
+          "endDate": "2023-12"
+        },
+        {
+          "title": "Head of Product",
+          "company": "Growth Inc",
+          "dateRange": "2024 - Present",
+          "isCurrent": true
+        }
+      ],
+      "expect": {
+        "employmentSourceEquals": "profile_experience",
+        "currentTitleContains": "Head of Product",
+        "currentCompanyEquals": "Growth Inc",
+        "pastCompanyContains": "BigCo"
+      }
+    },
+    {
+      "id": "emp_headline_fallback_when_no_experience",
+      "headline": "Senior Data Engineer at Example Labs",
+      "expect": {
+        "employmentSourceEquals": "headline",
+        "currentTitleContains": "Senior Data Engineer",
+        "currentCompanyContains": "Example Labs"
+      }
+    },
+    {
+      "id": "emp_vague_headline_no_experience",
+      "headline": "Building secure AI identity infrastructure",
+      "expect": {
+        "currentTitleIsNull": true,
+        "currentCompanyIsNull": true,
+        "employmentSourceEquals": "unknown",
+        "employmentNeedsReview": true,
+        "roleCategoriesIncludesAnyOf": ["ai_practitioner", "security_practitioner", "platform_engineer"]
+      }
+    }
+  ]
+}

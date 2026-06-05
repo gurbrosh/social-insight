@@ -1,0 +1,149 @@
+================================================================================
+PROJECT: Vibe Coding
+EXPORT DATE: 2026-01-07T17:24:21.355Z
+TOTAL PROFILES: 40
+================================================================================
+
+DISCORD (9 profiles)
+--------------------------------------------------------------------------------
+  [CHANNEL] Bolt
+  https://discord.com/channels/364486390102097930/671536649301131325
+
+  [CHANNEL] Bolt - Share
+  https://discord.com/channels/364486390102097930/681363253607006238
+
+  [CHANNEL] Cursor
+  https://discord.com/channels/1074847526655643750/1074847527708393565
+
+  [CHANNEL] Cursor - Announcements
+  https://discord.com/channels/1074847526655643750/1351160689380687942
+
+  [CHANNEL] Cursor - Showcase
+  https://discord.com/channels/1074847526655643750/1351160086432845864
+
+  [CHANNEL] Lovable
+  https://discord.com/channels/1119885301872070706/1252550980159934515
+
+  [CHANNEL] Lovable - feedback & features
+  https://discord.com/channels/1119885301872070706/1367241280349929673
+
+  [CHANNEL] Vibe Coding
+  https://discord.com/channels/1342547939934994475/1342547940954214531
+
+  [CHANNEL] Vibe Coding - now building
+  https://discord.com/channels/1342547939934994475/1364405385490071562
+
+
+FACEBOOK (9 profiles)
+--------------------------------------------------------------------------------
+  [COMPANY] Base44
+  https://www.facebook.com/Base44App
+
+  [PERSON] Bolt
+  https://facebook.com/100067715925974
+
+  [PERSON] Dark Code
+  https://facebook.com/100063897380052
+
+  [PERSON] Glenn Sonier
+  https://facebook.com/100006554475687
+
+  [COMPANY] Lovable IL
+  https://www.facebook.com/groups/lovable.il
+
+  [COMPANY] Main Lovable Group
+  https://www.facebook.com/groups/1025218999555060
+
+  [PERSON] Midudev - Desarrollador Full Stack Javascript
+  https://facebook.com/100063727248932
+
+  [PERSON] Programmer Thoughts
+  https://facebook.com/100044384925469
+
+  [COMPANY] Replit
+  https://www.facebook.com/replit
+
+
+LINKEDIN (7 profiles)
+--------------------------------------------------------------------------------
+  [PERSON] Ahmed ali
+  https://www.linkedin.com/search/results/people/?keywords=Ahmed%20ali
+
+  [COMPANY] Cursor LI Page
+  https://www.linkedin.com/company/cursorai/
+
+  [PERSON] Felix Haas
+  https://www.linkedin.com/search/results/people/?keywords=Felix%20Haas
+
+  [PERSON] Fidgi Simo
+  https://www.linkedin.com/in/fidjisimo/
+
+  [COMPANY] Lovable
+  https://www.linkedin.com/company/lovable-dev/
+
+  [COMPANY] OpenAI
+  https://www.linkedin.com/company/openai/
+
+  [PERSON] Tobias Lutke
+  https://www.linkedin.com/in/tobiaslutke/
+
+
+REDDIT (6 profiles)
+--------------------------------------------------------------------------------
+  [CHANNEL] AI Programming
+  https://www.reddit.com/r/aiprogramming/
+
+  [CHANNEL] LLM Devs
+  https://www.reddit.com/r/LLMDevs
+
+  [CHANNEL] MLOps
+  https://www.reddit.com/r/mlops
+
+  [PERSON] hzfan
+  https://www.reddit.com/user/hzfan
+
+  [PERSON] mabs97
+  https://www.reddit.com/user/mabs97
+
+  [PERSON] vibe_coder_fan
+  https://www.reddit.com/user/vibe_coder_fan
+
+
+X (9 profiles)
+--------------------------------------------------------------------------------
+  [COMPANY] Base44
+  https://x.com/base_44
+
+  [PERSON] Ben Lang
+  https://x.com/benln
+
+  [COMPANY] Bolt
+  https://x.com/boltdotnew
+
+  [COMPANY] Cursor
+  https://x.com/cursor_ai
+
+  [PERSON] Elon Musk
+  https://x.com/elonmusk
+
+  [COMPANY] Lovable
+  https://x.com/lovable_dev
+
+  [COMPANY] Lovable Main
+  https://x.com/Lovable
+
+  [COMPANY] Replit
+  https://x.com/Replit
+
+  [PERSON] analyst
+  https://x.com/analystworking
+
+
+================================================================================
+SUMMARY BY PLATFORM:
+  Discord: 9 profiles
+  Facebook: 9 profiles
+  Linkedin: 7 profiles
+  Reddit: 6 profiles
+  X: 9 profiles
+================================================================================

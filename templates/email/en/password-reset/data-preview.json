@@ -1,0 +1,6 @@
+{
+  "resetUrl": "https://app.crunchycone.com/auth/reset-password?token=abcd1234-sample-token",
+  "appName": "CrunchyCone Starter",
+  "supportEmail": "support@crunchycone.com",
+  "expiryHours": 1
+}

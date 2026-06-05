@@ -1,0 +1,208 @@
+---
+description: Admin dashboard development guidelines
+globs: ["app/admin/**/*", "components/admin/**/*", "app/actions/admin.ts"]
+---
+
+# Admin Dashboard Guidelines
+
+## Admin Routes Structure
+```
+/admin              - Dashboard home with metrics
+/admin/users        - Complete user management
+/admin/roles        - Role creation and management
+/admin/database     - Database viewer with table browsing
+/admin/settings     - Application configuration
+```
+
+## Access Control Requirements
+- ALL admin routes require `isAdmin(userId)` check
+- Server Components: Use `getCurrentUser()` and verify admin role
+- API Routes: Check session + admin status
+- Client Components: Assume server has verified (don't re-check)
+
+## User Management Features (`/admin/users`)
+
+### Core Functionality
+- **Search**: Real-time search users by email
+- **Pagination**: Handle large user bases efficiently
+- **User Details**: View complete profile information
+- **Role Management**: Add/remove roles with protection rules
+- **Password Reset**: Send reset emails to any user
+
+### Role Management Rules
+```typescript
+// Role assignment/removal protection
+const currentUserId = session.userId;
+
+// Cannot modify own admin role
+if (targetUserId === currentUserId && roleName === "admin") {
+  throw new Error("Cannot remove your own admin role");
+}
+
+// System roles are protected from deletion
+const SYSTEM_ROLES = ["user", "admin"];
+if (SYSTEM_ROLES.includes(roleName) && action === "delete") {
+  throw new Error("Cannot delete system roles");
+}
+```
+
+### UI Update Patterns
+```typescript
+// After role changes, refresh the user list
+const response = await fetch('/api/admin/users');
+if (response.ok) {
+  const { users } = await response.json();
+  setUsers(users); // Update state immediately
+}
+```
+
+## Role Management Features (`/admin/roles`)
+
+### Operations
+- **View Roles**: List all roles with user counts
+- **Create Role**: Add custom roles beyond user/admin
+- **Delete Role**: Remove custom roles (only if no users assigned)
+- **Protection**: System roles (user, admin) cannot be deleted
+
+### Role Creation Pattern
+```typescript
+// Create new role
+const role = await prisma.role.create({
+  data: { name: roleName.toLowerCase().trim() }
+});
+
+// Fetch updated list ordered by ID
+const updatedRoles = await prisma.role.findMany({
+  where: { deleted_at: null },
+  orderBy: { id: 'asc' }
+});
+```
+
+## Admin API Route Patterns
+
+### Authentication Check
+```typescript
+export async function POST(request: NextRequest) {
+  // Always check admin access first
+  const session = await getSession();
+  if (!session || !(await isAdmin(session.userId))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  
+  // Continue with admin operation...
+}
+```
+
+### Role Assignment API
+```typescript
+// Add role to user
+const userRole = await prisma.userRole.create({
+  data: { user_id: userId, role_id: roleId }
+});
+
+// Remove role from user
+await prisma.userRole.updateMany({
+  where: { user_id: userId, role_id: roleId },
+  data: { deleted_at: new Date() }
+});
+```
+
+### System Protection Patterns
+```typescript
+// Protect system roles
+const SYSTEM_ROLES = ["user", "admin"];
+if (SYSTEM_ROLES.includes(role.name)) {
+  return NextResponse.json(
+    { error: "Cannot delete system roles" },
+    { status: 400 }
+  );
+}
+
+// Prevent role deletion if users assigned
+const userCount = await prisma.userRole.count({
+  where: { role_id: roleId, deleted_at: null }
+});
+if (userCount > 0) {
+  return NextResponse.json(
+    { error: "Cannot delete role with assigned users" },
+    { status: 400 }
+  );
+}
+```
+
+## Component Architecture
+
+### Server Components (Data Fetching)
+- Use for initial data loading
+- Include database queries
+- Pass data to client components as props
+
+### Client Components (Interactivity)
+- Handle user interactions
+- Manage local state
+- Make API calls for updates
+- Show loading/error states
+
+### State Management
+```typescript
+// Optimistic updates
+const [users, setUsers] = useState(initialUsers);
+const [loading, setLoading] = useState(false);
+
+// Update UI immediately, handle errors
+const updateUserRole = async (userId, roleId, action) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`/api/admin/users/${userId}/roles`, {
+      method: action === 'add' ? 'POST' : 'DELETE',
+      body: JSON.stringify({ roleId })
+    });
+    
+    if (response.ok) {
+      // Refresh user list
+      refreshUsers();
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+## Database Viewer Features (`/admin/database`)
+
+### Core Functionality
+- **Table List**: Display all database tables with row counts
+- **Table Data**: View table contents with pagination (100 rows per page)
+- **Navigation**: URL-based navigation for browser back/forward support
+- **SQL Protection**: Table name validation to prevent SQL injection
+
+### URL-Based Navigation
+```typescript
+// Navigate to table view
+router.push(`/admin/database?table=${encodeURIComponent(tableName)}&page=1`);
+
+// Navigate back to table list
+router.push('/admin/database');
+
+// Pagination
+router.push(`/admin/database?table=${tableName}&page=${pageNumber}`);
+```
+
+### Security Patterns
+```typescript
+// Validate table names against actual database tables
+const validTables = await getDatabaseTables();
+const isValidTable = validTables.some(t => t.name === tableName);
+
+if (!isValidTable) {
+  throw new Error("Invalid table name");
+}
+```
+
+## Security Considerations
+- ULIDs are safe to expose (non-enumerable, non-guessable)
+- Always validate permissions server-side
+- Use transactions for multi-step operations
+- Implement rate limiting for admin actions
+- Log admin actions for audit trails
+- Database Viewer validates table names to prevent SQL injection

@@ -1,0 +1,222 @@
+---
+description: Overall project architecture and conventions
+alwaysApply: true
+---
+
+# Production Starter Template - Project Overview
+
+## Working Directory Context
+**IMPORTANT**: This is a Next.js project. When executing commands:
+- Always check if `package.json` exists in the current directory
+- If not found, look for it in subdirectories
+- Change to the project root directory (where `package.json` is located) before running npm/npx commands
+- The project root contains: `package.json`, `next.config.js`, `tsconfig.json`, `.env`, and `prisma/` folder
+- Example: If opened from parent directory, first `cd` into the project folder before running `npm run dev`
+
+## Project Architecture
+
+This is a production-ready Next.js 15 starter template with complete authentication, admin dashboard, and role-based access control.
+
+### Core Technologies
+- **Next.js 15**: App Router, Server Components, Server Actions
+- **TypeScript**: Full type safety throughout
+- **Prisma**: ORM with SQLite (production database ready)
+- **Tailwind CSS**: Responsive styling with dark mode
+- **shadcn/ui**: Accessible component library
+- **bcrypt**: Password hashing
+- **JWT**: Stateless authentication
+- **ULID**: Universally Unique Lexicographically Sortable IDs
+- **next-themes**: Theme management
+
+### Project Structure
+```
+app/
+├── actions/          # Server Actions for database operations
+├── admin/           # Admin dashboard (protected routes)
+├── api/             # API routes for external integrations
+├── auth/            # Authentication pages and flows
+└── page.tsx         # Home page with smart routing
+
+components/
+├── ui/              # shadcn/ui base components
+├── auth/            # Authentication forms and flows
+└── admin/           # Admin dashboard components
+
+lib/
+├── auth/            # Authentication utilities and permissions
+│   ├── auth.ts      # Core auth functions (server-side)
+│   ├── token.ts     # JWT token utilities (client/server safe)
+│   └── permissions.ts # Role checking and user management
+├── email/           # Email service with provider pattern
+├── utils/           # Utility modules
+│   └── ulid.ts      # ULID generation and Prisma middleware
+└── prisma.ts        # Centralized Prisma client with ULID middleware
+
+prisma/
+├── schema.prisma    # Database schema with soft deletes
+└── seed.ts          # Default data seeding
+```
+
+## Supported User Flows
+
+### Authentication Flows
+1. **First-Time Setup**: Auto-redirect to admin setup if no admin exists
+2. **Sign Up**: Email/password → verification email → account activation
+3. **Sign In**: Email/password OR magic link authentication
+4. **Password Reset**: Forgot password → email link → reset form → success
+5. **Email Verification**: Automatic after signup, 24-hour expiry
+
+### Admin Management Flows
+1. **User Management**: Search, view, edit, assign roles, send password resets
+2. **Role Management**: Create custom roles, assign/remove, protect system roles
+3. **Database Viewer**: Browse all tables, view data with pagination, SQL injection protection
+4. **Protection Rules**: Cannot remove own admin role, system roles protected
+
+### Developer Flows
+1. **Database Migrations**: Schema changes → migrate → generate client
+2. **Project Reset**: `npm run reset` to return to fresh state
+3. **Email Provider**: Console logging (dev) → production email service
+
+## Security Implementation
+
+### Authentication Security
+- Passwords hashed with bcrypt (10 salt rounds)
+- JWT tokens with appropriate expiry times
+- HTTP-only cookies for session storage
+- CSRF protection with SameSite policy
+- Different token types for different purposes
+
+### Authorization Security
+- Server-side permission checks on all protected routes
+- Admin role verification for all admin operations
+- Self-demotion prevention (admin cannot remove own admin role)
+- System role protection (user/admin roles cannot be deleted)
+
+### Database Security
+- ULID primary keys (non-enumerable, sortable by creation time)
+- Soft delete pattern (never hard delete)
+- Transaction-wrapped multi-table operations
+- Parameterized queries via Prisma
+- Input validation with Zod schemas
+- SQL injection protection in Database Viewer
+
+## Development Guidelines
+
+### Database Changes
+1. Update `prisma/schema.prisma`
+2. Run `npx prisma migrate dev --name "description"`
+3. Prisma automatically runs `generate` after migrations
+4. Always use soft deletes (`deleted_at` field)
+
+### Authentication Integration
+- Use `getCurrentUser()` for getting authenticated user
+- Use `isAdmin()` for admin checks
+- Use `hasRole()` for custom role checks
+- Always verify permissions server-side
+
+### Component Patterns
+- Server Components for data fetching
+- Client Components for interactivity
+- Use Server Actions for form submissions
+- Implement loading states and error handling
+
+### API Route Patterns
+```typescript
+// Authentication check
+const session = await getSession();
+if (!session) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+// Admin check (note: userId is now a string, not number)
+const isUserAdmin = await isAdmin(session.userId);
+if (!isUserAdmin) {
+  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+}
+```
+
+### ID Handling
+- All IDs are now ULID strings (26 characters)
+- Generated automatically by Prisma middleware
+- No parseInt() needed for route parameters
+- Example: `01JZK5AT1CBD1SBW5T3JQ60VPR`
+
+## Email System
+
+### Provider Pattern
+- Console provider for development (logs to terminal)
+- Easy integration with SendGrid, Resend, AWS SES, SMTP
+- Global configuration via `setEmailProvider()`
+
+### Email Templates
+- **Verification**: Account activation (24h expiry)
+- **Reset**: Password reset (1h expiry)
+- **Magic Link**: Passwordless login (24h expiry)
+
+## Theme System
+
+### Features
+- Light/Dark/System modes
+- Persistent user preference
+- Theme toggle on all pages
+- Smooth transitions without flash
+
+## Production Considerations
+
+### Environment Variables
+- `JWT_SECRET`: Change in production
+- `DATABASE_URL`: Use PostgreSQL/MySQL for production
+- `NEXT_PUBLIC_APP_URL`: Set to production domain
+- Email provider credentials
+
+### Security Checklist
+- [ ] Update JWT_SECRET
+- [ ] Configure production email provider
+- [ ] Set up HTTPS
+- [ ] Configure production database
+- [ ] Review CORS settings
+- [ ] Set up monitoring
+
+## Common Operations
+
+### Reset Project
+```bash
+npm run reset          # Interactive mode
+npm run reset --yes    # Skip confirmation
+```
+
+### Database Management
+```bash
+npx prisma studio      # GUI database browser
+npx prisma generate    # Regenerate client
+npm run db:seed        # Seed default data
+```
+
+### Development
+```bash
+npm run dev           # Start development server
+npm run build         # Production build
+npm run lint          # Code linting
+```
+
+## Extension Points
+
+### Custom Roles
+- Create via admin panel
+- Assign to users
+- Check with `hasRole(userId, roleName)`
+
+### Email Providers
+- Implement `EmailProvider` interface
+- Configure in app initialization
+- See `docs/email-providers.md`
+
+### Authentication Providers
+- OAuth integration patterns
+- Account linking strategies
+- See `docs/auth-providers.md`
+
+### Theme Customization
+- Custom CSS variables
+- User-selectable themes
+- See `docs/theme-customization.md`

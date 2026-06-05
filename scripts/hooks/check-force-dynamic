@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Check for missing force-dynamic exports in pages and API routes
+# This script ensures all routes have export const dynamic = "force-dynamic";
+
+echo "🔍 Checking for missing force-dynamic exports..."
+
+# Find all page.tsx files in app/ directory
+PAGE_FILES=$(find app -name "page.tsx" -type f)
+
+# Find all route.ts files in app/api/ directory  
+API_FILES=$(find app/api -name "route.ts" -type f)
+
+MISSING_FORCE_DYNAMIC=0
+
+# Check page files
+for file in $PAGE_FILES; do
+  # Skip if it's a client component (has "use client" directive)
+  if grep -q '"use client"' "$file"; then
+    continue
+  fi
+  
+  # Check if force-dynamic is present
+  if ! grep -q 'export const dynamic = "force-dynamic"' "$file"; then
+    echo "❌ Missing force-dynamic in page: $file"
+    MISSING_FORCE_DYNAMIC=1
+  fi
+done
+
+# Check API files
+for file in $API_FILES; do
+  # Check if force-dynamic is present
+  if ! grep -q 'export const dynamic = "force-dynamic"' "$file"; then
+    echo "❌ Missing force-dynamic in API route: $file"
+    MISSING_FORCE_DYNAMIC=1
+  fi
+done
+
+if [ $MISSING_FORCE_DYNAMIC -eq 0 ]; then
+  echo "✅ All routes have force-dynamic exports"
+  exit 0
+else
+  echo ""
+  echo "🚨 CRITICAL: Missing force-dynamic exports detected!"
+  echo "All pages and API routes must include: export const dynamic = \"force-dynamic\";"
+  echo ""
+  echo "Add this line after imports but before the main export in each file."
+  echo "See .cursor/rules/12-CRITICAL-force-dynamic.mdc for details."
+  exit 1
+fi

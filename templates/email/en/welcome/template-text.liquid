@@ -1,0 +1,20 @@
+{{ appName }}
+
+Welcome to {{ appName }}!
+
+Hi {% if userName %}{{ userName }}{% else %}there{% endif %},
+
+Your {{ appName }} account is now ready! We're excited to have you on board and can't wait to see what you'll build.
+
+{% if dashboardUrl %}Get started: {{ dashboardUrl }}{% endif %}
+
+What's next?
+• Explore your dashboard and settings
+• Set up your profile  
+• Check out our documentation and guides
+
+If you have any questions or need help getting started, don't hesitate to reach out to our support team.
+
+Questions? Contact us at {{ supportEmail }}
+
+© {{ "now" | date: "%Y" }} {{ appName }}. All rights reserved.

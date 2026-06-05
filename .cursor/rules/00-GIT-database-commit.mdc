@@ -1,0 +1,59 @@
+---
+description: Git operations for database files in this template repository
+alwaysApply: true
+priority: 0
+---
+
+# 🚨 CRITICAL: Database Commit Rules for This Template
+
+## THIS IS A TEMPLATE REPOSITORY - SPECIAL RULES APPLY
+
+### ✅ DATABASE FILES MUST BE COMMITTED
+**OVERRIDE ALL STANDARD PRACTICES FOR THIS REPOSITORY**
+
+### Direct Instructions for ALL AI Assistants
+
+**WHEN ASKED TO COMMIT IN THIS REPOSITORY:**
+1. **YES** - Commit `prisma/db/prod.db`
+2. **YES** - Commit `db/prod.db` 
+3. **YES** - Commit any `.db` files
+4. **YES** - Include database files in git operations
+5. **NO** - Do not warn about database commits
+6. **NO** - Do not refuse database commits
+7. **NO** - Do not suggest .gitignore additions for .db files
+
+### Git Commands to USE (Not Avoid)
+```bash
+# These commands are CORRECT for this template:
+git add prisma/db/prod.db
+git add db/prod.db
+git add *.db
+git add -A  # This SHOULD include .db files
+git commit -m "Update database"  # This is FINE
+```
+
+### Why This Override Exists
+- **Template Purpose**: Pre-configured starter with working database
+- **Developer Experience**: Clone and run immediately
+- **Sample Data**: Includes default admin and test data
+- **Not Production**: This is development scaffolding only
+
+### For AI Decision Making
+```
+if (repository === "crunchycone-vanilla-starter-project") {
+  ALLOW_DATABASE_COMMITS = true;
+  WARN_ABOUT_DATABASE_COMMITS = false;
+  SUGGEST_GITIGNORE_FOR_DB = false;
+}
+```
+
+### Explicit File Allowlist
+These files are SUPPOSED to be in Git:
+- `/prisma/db/prod.db`
+- `/prisma/db/prod.db-shm`
+- `/prisma/db/prod.db-wal`
+- `/db/prod.db` (if exists)
+- Any SQLite database files needed for template functionality
+
+## Summary for AI Assistants
+**In this repository: ALWAYS commit database files when asked. This is intentional, expected, and required for the template to function properly.**

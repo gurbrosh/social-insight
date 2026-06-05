@@ -1,0 +1,618 @@
+Category,Subcategory,Sub-subcategory
+Technology,Software - Application (Horizontal),CRM & Sales
+Technology,Software - Application (Horizontal),ERP
+Technology,Software - Application (Horizontal),HCM/Payroll
+Technology,Software - Application (Horizontal),Finance/Accounting
+Technology,Software - Application (Horizontal),Procurement
+Technology,Software - Application (Horizontal),E-signature
+Technology,Software - Application (Horizontal),Collaboration/UCaaS
+Technology,Software - Application (Horizontal),Project/PMO
+Technology,Software - Application (Horizontal),Knowledge Mgmt
+Technology,Software - Application (Horizontal),Contact Center/CCaaS
+Technology,Software - Application (Horizontal),CPQ
+Technology,Software - Application (Horizontal),Billing/RevOps
+Technology,Software - Data & Analytics,BI/Visualization
+Technology,Software - Data & Analytics,ELT/ETL
+Technology,Software - Data & Analytics,Reverse ETL
+Technology,Software - Data & Analytics,Metrics Layer/Semantic
+Technology,Software - Data & Analytics,Experimentation/A-B Testing
+Technology,Software - Data & Analytics,Product Analytics
+Technology,Software - Data & Analytics,Customer Data Platform (CDP)
+Technology,Software - Data & Analytics,Data Catalog/Lineage
+Technology,Software - Data & Analytics,Data Privacy/Governance
+Technology,Software - Data & Analytics,MDM
+Technology,Software - Dev & DevOps,IDEs & AI IDEs
+Technology,Software - Dev & DevOps,Code Hosting
+Technology,Software - Dev & DevOps,CI
+Technology,Software - Dev & DevOps,CD
+Technology,Software - Dev & DevOps,Artifact/Registry
+Technology,Software - Dev & DevOps,IaC
+Technology,Software - Dev & DevOps,GitOps
+Technology,Software - Dev & DevOps,Feature Flags
+Technology,Software - Dev & DevOps,Testing
+Technology,Software - Dev & DevOps,Observability SDKs
+Technology,Software - Vertical,FinTech Software
+Technology,Software - Vertical,HealthTech Software
+Technology,Software - Vertical,GovTech Software
+Technology,Software - Vertical,LegalTech Software
+Technology,Software - Vertical,PropTech Software
+Technology,Software - Vertical,EdTech Software
+Technology,Software - Vertical,AgTech Software
+Technology,Software - Vertical,Industrial/OT Software
+Technology,Software - Vertical,Retail/eCom Suites
+Technology,Software - Vertical,LogisticsTech Software
+Technology,Systems Software,Operating Systems
+Technology,Systems Software,Hypervisors/Virtualization
+Technology,Systems Software,VDI/DaaS
+Technology,Systems Software,ESB/iPaaS
+Technology,Systems Software,API Gateways
+Technology,Systems Software,Event Streaming
+Technology,Systems Software,Message Queues
+Technology,Systems Software,Data Lakes
+Technology,Systems Software,Lakehouse
+Technology,Systems Software,Catalog/Lineage
+Technology,Databases,Relational DB
+Technology,Databases,NoSQL - Document
+Technology,Databases,NoSQL - Key/Value
+Technology,Databases,NoSQL - Wide Column
+Technology,Databases,Time-series DB
+Technology,Databases,Graph DB
+Technology,Databases,Vector DB
+Technology,Databases,NewSQL/HTAP
+Technology,Databases,Caching
+Technology,Cloud Infrastructure,IaaS Compute
+Technology,Cloud Infrastructure,Storage
+Technology,Cloud Infrastructure,Networking
+Technology,Cloud Infrastructure,CDN
+Technology,Cloud Infrastructure,DNS
+Technology,Cloud Infrastructure,Load Balancers
+Technology,Cloud Infrastructure,Edge/Metro
+Technology,Cloud Infrastructure,Colocation/Data Centers
+Technology,PaaS & Managed Services,Managed Databases
+Technology,PaaS & Managed Services,Managed Kafka/Streaming
+Technology,PaaS & Managed Services,Functions/Serverless
+Technology,PaaS & Managed Services,ML Platforms
+Technology,PaaS & Managed Services,App Platforms
+Technology,PaaS & Managed Services,Containers-as-a-Service
+Technology,Containers & Orchestration,Kubernetes Distros
+Technology,Containers & Orchestration,Service Mesh
+Technology,Containers & Orchestration,Ingress/API Gateways
+Technology,Containers & Orchestration,Service Discovery
+Technology,Containers & Orchestration,RPC
+Technology,Platform Engineering,Internal Developer Portals
+Technology,Platform Engineering,Golden Paths/Scaffolding
+Technology,Platform Engineering,Environment Mgmt
+Technology,Platform Engineering,Policy/OPA
+Technology,Platform Engineering,Secrets/KMS
+Technology,Observability & Reliability,Metrics/Monitoring
+Technology,Observability & Reliability,Logging
+Technology,Observability & Reliability,Tracing
+Technology,Observability & Reliability,Profiling
+Technology,Observability & Reliability,Chaos/Resilience
+Technology,Observability & Reliability,SLO/SRE Tooling
+Technology,Cybersecurity,IAM/SSO/CIAM
+Technology,Cybersecurity,MFA/PAM/IGA
+Technology,Cybersecurity,EPP/EDR/XDR
+Technology,Cybersecurity,Email Security
+Technology,Cybersecurity,Browser Isolation
+Technology,Cybersecurity,NGFW/NDR
+Technology,Cybersecurity,"SASE/SSE (SWG, CASB, ZTNA)"
+Technology,Cybersecurity,Micro-segmentation
+Technology,Cybersecurity,CNAPP (CSPM+CWPP+CIEM)
+Technology,Cybersecurity,Container/K8s Security
+Technology,Cybersecurity,Supply Chain/SBOM
+Technology,Cybersecurity,SAST/DAST/IAST
+Technology,Cybersecurity,RASP
+Technology,Cybersecurity,API Security
+Technology,Cybersecurity,SIEM
+Technology,Cybersecurity,SOAR
+Technology,Cybersecurity,Threat Intel
+Technology,Cybersecurity,Deception
+Technology,Cybersecurity,DFIR
+Technology,Cybersecurity,GRC
+Technology,Cybersecurity,DLP
+Technology,Cybersecurity,Data Masking/Tokenization
+Technology,AI/ML & Data Science,Pipelines (Batch/Streaming)
+Technology,AI/ML & Data Science,Data Orchestration
+Technology,AI/ML & Data Science,Data Quality/Observability
+Technology,AI/ML & Data Science,Data Cost/FinOps
+Technology,AI/ML & Data Science,AutoML
+Technology,AI/ML & Data Science,Training/Serving
+Technology,AI/ML & Data Science,Feature Stores
+Technology,AI/ML & Data Science,Vector Stores/Embeddings
+Technology,AI/ML & Data Science,Model Registry
+Technology,AI/ML & Data Science,Experiment Tracking
+Technology,AI/ML & Data Science,MLOps Lifecycle
+Technology,AI/ML & Data Science,LLMOps (Prompts/Evals/Guardrails)
+Technology,AI/ML & Data Science,Inference Gateways
+Technology,AI/ML & Data Science,Applied AI (Copilots/Agents)
+Technology,AI/ML & Data Science,RAG/Doc AI
+Technology,AI/ML & Data Science,Vision/Speech
+Technology,AI/ML & Data Science,Recommenders
+Technology,AI/ML & Data Science,Forecasting
+Technology,Communications & Networking (Tech),CPaaS
+Technology,Communications & Networking (Tech),UCaaS
+Technology,Communications & Networking (Tech),VoIP
+Technology,Communications & Networking (Tech),WebRTC
+Technology,Communications & Networking (Tech),SD-WAN
+Technology,Communications & Networking (Tech),NAC
+Technology,Semiconductors & EDA,EDA Tools
+Technology,Semiconductors & EDA,IP Cores
+Technology,Semiconductors & EDA,Verification
+Technology,Semiconductors & EDA,Fabless - Analog/Mixed-Signal
+Technology,Semiconductors & EDA,Fabless - Connectivity
+Technology,Semiconductors & EDA,Fabless - Accelerators
+Technology,Semiconductors & EDA,Foundry
+Technology,Semiconductors & EDA,OSAT
+Technology,Semiconductors & EDA,Fab Equipment
+Technology,Semiconductors & EDA,Materials/Chemicals
+Technology,Consumer & Creator Tech,Game Engines/Tools
+Technology,Consumer & Creator Tech,Editing (Video/Audio)
+Technology,Consumer & Creator Tech,3D/CGI
+Technology,Consumer & Creator Tech,Live-ops/Monetization
+Technology,Consumer & Creator Tech,Creator Monetization
+Technology,Consumer & Creator Tech,Streaming Tech
+Healthcare & Life Sciences,Providers,Hospitals/Health Systems
+Healthcare & Life Sciences,Providers,Clinics/Ambulatory
+Healthcare & Life Sciences,Providers,Primary Care
+Healthcare & Life Sciences,Providers,Specialty Care
+Healthcare & Life Sciences,Providers,Telehealth
+Healthcare & Life Sciences,Providers,Mental Health
+Healthcare & Life Sciences,Providers,Dentistry
+Healthcare & Life Sciences,Providers,Optometry/Ophthalmology
+Healthcare & Life Sciences,Providers,Physical Therapy
+Healthcare & Life Sciences,Providers,Home Health
+Healthcare & Life Sciences,Providers,Long-term Care/SNF
+Healthcare & Life Sciences,Providers,Urgent Care
+Healthcare & Life Sciences,Pharma & Biotech,Drug Discovery
+Healthcare & Life Sciences,Pharma & Biotech,Clinical Trials
+Healthcare & Life Sciences,Pharma & Biotech,Biologics
+Healthcare & Life Sciences,Pharma & Biotech,Generics
+Healthcare & Life Sciences,Pharma & Biotech,CDMO/CMO
+Healthcare & Life Sciences,Pharma & Biotech,Rare Diseases
+Healthcare & Life Sciences,Pharma & Biotech,Gene/Cell Therapy
+Healthcare & Life Sciences,Medical Devices & Diagnostics,Imaging Systems
+Healthcare & Life Sciences,Medical Devices & Diagnostics,Patient Monitoring
+Healthcare & Life Sciences,Medical Devices & Diagnostics,Implants/Orthopedics
+Healthcare & Life Sciences,Medical Devices & Diagnostics,Surgical Devices
+Healthcare & Life Sciences,Medical Devices & Diagnostics,Lab Equipment
+Healthcare & Life Sciences,Medical Devices & Diagnostics,IVD/Diagnostics
+Healthcare & Life Sciences,Health IT,EHR/EMR
+Healthcare & Life Sciences,Health IT,RCM/Billing
+Healthcare & Life Sciences,Health IT,Practice Mgmt
+Healthcare & Life Sciences,Health IT,Health Analytics
+Healthcare & Life Sciences,Health IT,Payer Tech
+Healthcare & Life Sciences,Health IT,Interoperability/HL7/FHIR
+Healthcare & Life Sciences,Payers & Insurance,Health Insurance (Payer)
+Healthcare & Life Sciences,Payers & Insurance,PBMs
+Healthcare & Life Sciences,Payers & Insurance,TPAs
+Healthcare & Life Sciences,Wellness & Fitness,Gyms/Studios
+Healthcare & Life Sciences,Wellness & Fitness,Digital Health Apps
+Healthcare & Life Sciences,Wellness & Fitness,Nutrition/Weight Mgmt
+Legal,Law Firms (by Practice),Corporate/M&A
+Legal,Law Firms (by Practice),Litigation/Dispute Resolution
+Legal,Law Firms (by Practice),IP/Patents/Trademarks
+Legal,Law Firms (by Practice),Employment/Labor
+Legal,Law Firms (by Practice),Tax
+Legal,Law Firms (by Practice),Real Estate
+Legal,Law Firms (by Practice),Bankruptcy/Restructuring
+Legal,Law Firms (by Practice),Antitrust
+Legal,Law Firms (by Practice),Securities
+Legal,Law Firms (by Practice),Family
+Legal,Law Firms (by Practice),Immigration
+Legal,Law Firms (by Practice),Criminal Defense
+Legal,Law Firms (by Practice),Privacy/Data Protection
+Legal,Legal Services & ALSP,Alternative Legal Service Providers
+Legal,Legal Services & ALSP,Contract Attorneys
+Legal,Legal Services & ALSP,Document Review
+Legal,Legal Services & ALSP,Court Reporting
+Legal,Legal Services & ALSP,Notary Services
+Legal,LegalTech,E-Discovery
+Legal,LegalTech,CLM (Contract Lifecycle)
+Legal,LegalTech,E-billing/Spend Mgmt
+Legal,LegalTech,Legal Research/Knowledge Mgmt
+Legal,LegalTech,Matter Mgmt
+Consulting & Professional Services,Strategy & Management,Corporate Strategy
+Consulting & Professional Services,Strategy & Management,Growth/Innovation
+Consulting & Professional Services,Strategy & Management,Org Design/Change Mgmt
+Consulting & Professional Services,Technology & Digital,Cloud Migrations
+Consulting & Professional Services,Technology & Digital,Data/AI Consulting
+Consulting & Professional Services,Technology & Digital,Cybersecurity Consulting
+Consulting & Professional Services,Technology & Digital,Digital Transformation
+Consulting & Professional Services,Technology & Digital,Product/Design/UX
+Consulting & Professional Services,Operations & Supply Chain,Process Improvement/Lean
+Consulting & Professional Services,Operations & Supply Chain,Procurement/Sourcing
+Consulting & Professional Services,Operations & Supply Chain,Manufacturing Ops
+Consulting & Professional Services,Operations & Supply Chain,Supply Chain/Logistics
+Consulting & Professional Services,"Risk, Audit & Forensics",Internal Audit
+Consulting & Professional Services,"Risk, Audit & Forensics",Financial Advisory
+Consulting & Professional Services,"Risk, Audit & Forensics",Forensics/Investigations
+Consulting & Professional Services,"Risk, Audit & Forensics",Restructuring/Turnaround
+Consulting & Professional Services,"Risk, Audit & Forensics",Valuation
+Consulting & Professional Services,HR & People,Recruiting/Executive Search
+Consulting & Professional Services,HR & People,Comp & Benefits
+Consulting & Professional Services,HR & People,Training/L&D
+Consulting & Professional Services,Managed Services & BPO,IT Managed Services (MSP)
+Consulting & Professional Services,Managed Services & BPO,Security (MSSP)
+Consulting & Professional Services,Managed Services & BPO,Helpdesk/Service Desk
+Consulting & Professional Services,Managed Services & BPO,CX/Contact Center Outsourcing
+Consulting & Professional Services,Managed Services & BPO,Back-office BPO
+Energy & Utilities,Oil & Gas,Upstream (E&P)
+Energy & Utilities,Oil & Gas,Midstream (Pipelines/Storage)
+Energy & Utilities,Oil & Gas,Downstream (Refining/Marketing)
+Energy & Utilities,Power & Utilities,Electric Utilities
+Energy & Utilities,Power & Utilities,Gas Utilities
+Energy & Utilities,Power & Utilities,Water/Wastewater Utilities
+Energy & Utilities,Renewables & Storage,Solar PV
+Energy & Utilities,Renewables & Storage,Wind
+Energy & Utilities,Renewables & Storage,Hydro
+Energy & Utilities,Renewables & Storage,Geothermal
+Energy & Utilities,Renewables & Storage,Energy Storage/Batteries
+Energy & Utilities,Renewables & Storage,Microgrids
+Energy & Utilities,Emerging & Low-Carbon,Hydrogen
+Energy & Utilities,Emerging & Low-Carbon,Carbon Capture/Sequestration
+Energy & Utilities,Emerging & Low-Carbon,Bioenergy
+Energy & Utilities,Energy Services,EPC
+Energy & Utilities,Energy Services,O&M
+Energy & Utilities,Energy Services,Energy Trading/Marketing
+Energy & Utilities,Energy Services,Demand Response/DR
+Energy & Utilities,Nuclear,Nuclear Generation
+Energy & Utilities,Nuclear,SMRs
+Energy & Utilities,Nuclear,Fuel Cycle
+Transportation & Logistics,Freight Transport,Trucking - TL/LTL
+Transportation & Logistics,Freight Transport,Rail Freight
+Transportation & Logistics,Freight Transport,Air Cargo
+Transportation & Logistics,Freight Transport,Ocean/Container Shipping
+Transportation & Logistics,Freight Transport,Inland Waterways
+Transportation & Logistics,Logistics & 3PL,3PL/4PL
+Transportation & Logistics,Logistics & 3PL,Freight Forwarding
+Transportation & Logistics,Logistics & 3PL,Customs Brokerage
+Transportation & Logistics,Logistics & 3PL,Fulfillment/3PL Warehousing
+Transportation & Logistics,Logistics & 3PL,Last-mile Delivery
+Transportation & Logistics,Warehousing & Distribution,Public Warehousing
+Transportation & Logistics,Warehousing & Distribution,Cold Chain
+Transportation & Logistics,Warehousing & Distribution,Cross-docking
+Transportation & Logistics,Postal & Courier,Parcel Delivery
+Transportation & Logistics,Postal & Courier,Express Couriers
+Transportation & Logistics,Fleet & Mobility,Fleet Management
+Transportation & Logistics,Fleet & Mobility,Telematics
+Transportation & Logistics,Fleet & Mobility,EV Fleet/Charging
+Transportation & Logistics,Passenger Transport,Public Transit
+Transportation & Logistics,Passenger Transport,Ride-hailing/Taxi
+Transportation & Logistics,Passenger Transport,Intercity Bus/Coach
+Aviation & Aerospace,Airlines & Airports,Passenger Airlines
+Aviation & Aerospace,Airlines & Airports,Cargo Airlines
+Aviation & Aerospace,Airlines & Airports,Airports/Operators
+Aviation & Aerospace,Aerospace Manufacturing,Aircraft OEMs
+Aviation & Aerospace,Aerospace Manufacturing,Engines
+Aviation & Aerospace,Aerospace Manufacturing,Components/Avionics
+Aviation & Aerospace,MRO & Services,Maintenance/Repair/Overhaul
+Aviation & Aerospace,MRO & Services,Ground Handling
+Aviation & Aerospace,MRO & Services,Catering
+Aviation & Aerospace,Space,Launch Services
+Aviation & Aerospace,Space,Satellites/Constellations
+Aviation & Aerospace,Space,Spacecraft/Components
+Aviation & Aerospace,UAV/Drone,Commercial Drones
+Aviation & Aerospace,UAV/Drone,UAM/VTOL
+Aviation & Aerospace,UAV/Drone,Traffic Mgmt/UTM
+Aviation & Aerospace,Air Traffic & Safety,ATC Systems
+Aviation & Aerospace,Air Traffic & Safety,Navigation/Surveillance
+Aviation & Aerospace,Air Traffic & Safety,Safety/Compliance
+Food & Beverage,Production & Processing,Meat/Poultry/Seafood
+Food & Beverage,Production & Processing,Dairy
+Food & Beverage,Production & Processing,Bakery/Confectionery
+Food & Beverage,Production & Processing,Beverages (Non-alcoholic)
+Food & Beverage,Production & Processing,Alcoholic Beverages
+Food & Beverage,Production & Processing,Packaged/CPG Foods
+Food & Beverage,Distribution & Wholesale,Food Distributors
+Food & Beverage,Distribution & Wholesale,Beverage Distributors
+Food & Beverage,Retail & Foodservice,Grocery/Supermarkets
+Food & Beverage,Retail & Foodservice,Convenience Stores
+Food & Beverage,Retail & Foodservice,Restaurants - Full Service
+Food & Beverage,Retail & Foodservice,Restaurants - Limited Service/QSR
+Food & Beverage,Retail & Foodservice,Cafes/Coffee/Tea
+Food & Beverage,Retail & Foodservice,Bars/Pubs
+Food & Beverage,Retail & Foodservice,Catering
+Food & Beverage,Retail & Foodservice,Food Trucks
+Food & Beverage,FoodTech,Delivery Platforms
+Food & Beverage,FoodTech,Ghost Kitchens
+Food & Beverage,FoodTech,Restaurant Tech/POS
+"Marketing, Advertising & PR",Agencies,Creative/Brand
+"Marketing, Advertising & PR",Agencies,Media Buying/Planning
+"Marketing, Advertising & PR",Agencies,Performance/SEM
+"Marketing, Advertising & PR",Agencies,SEO/Content
+"Marketing, Advertising & PR",Agencies,Social/Influencer
+"Marketing, Advertising & PR",Agencies,PR/Comms
+"Marketing, Advertising & PR",Agencies,Experiential/Events
+"Marketing, Advertising & PR",AdTech & MarTech,DSP/SSP/Exchanges
+"Marketing, Advertising & PR",AdTech & MarTech,Ad Servers/DCO
+"Marketing, Advertising & PR",AdTech & MarTech,Attribution/MMP
+"Marketing, Advertising & PR",AdTech & MarTech,Clean Rooms
+"Marketing, Advertising & PR",AdTech & MarTech,CDP/Journey Orchestration
+"Marketing, Advertising & PR",AdTech & MarTech,Email/SMS/Push
+"Marketing, Advertising & PR",Market Research & Insights,Panels/Surveys
+"Marketing, Advertising & PR",Market Research & Insights,Social Listening
+"Marketing, Advertising & PR",Market Research & Insights,Brand Tracking
+Fashion & Apparel,Brands & Labels,Luxury
+Fashion & Apparel,Brands & Labels,Designer
+Fashion & Apparel,Brands & Labels,Fast Fashion
+Fashion & Apparel,Brands & Labels,Sportswear/Activewear
+Fashion & Apparel,Brands & Labels,Children/Baby
+Fashion & Apparel,Brands & Labels,Plus-size
+Fashion & Apparel,Brands & Labels,Sustainable/Ethical
+Fashion & Apparel,Footwear & Accessories,Footwear
+Fashion & Apparel,Footwear & Accessories,Bags/Luggage
+Fashion & Apparel,Footwear & Accessories,Jewelry/Watches
+Fashion & Apparel,Footwear & Accessories,Eyewear
+Fashion & Apparel,Retail & Wholesale,Department Stores
+Fashion & Apparel,Retail & Wholesale,Boutiques
+Fashion & Apparel,Retail & Wholesale,E-commerce/D2C
+Fashion & Apparel,Retail & Wholesale,Wholesale/Showrooms
+Fashion & Apparel,Textiles & Manufacturing,Fabric Mills
+Fashion & Apparel,Textiles & Manufacturing,Cut & Sew
+Fashion & Apparel,Textiles & Manufacturing,Dyeing/Finishing
+Fashion & Apparel,FashionTech,3D Design/CAD
+Fashion & Apparel,FashionTech,Sizing/Virtual Try-on
+Fashion & Apparel,FashionTech,PLM/PIM
+Media & Entertainment,Film & TV,Studios/Production
+Media & Entertainment,Film & TV,Post-production/VFX
+Media & Entertainment,Film & TV,Distribution/Streaming
+Media & Entertainment,Music,Labels/Publishing
+Media & Entertainment,Music,Studios/Production
+Media & Entertainment,Music,Live/Events
+Media & Entertainment,Publishing,Books
+Media & Entertainment,Publishing,News/Periodicals
+Media & Entertainment,Publishing,Digital Media
+Media & Entertainment,Gaming & Esports,Game Development
+Media & Entertainment,Gaming & Esports,Publishing
+Media & Entertainment,Gaming & Esports,Esports Teams/Leagues
+Media & Entertainment,Talent & Agencies,Talent Agencies
+Media & Entertainment,Talent & Agencies,Management
+Media & Entertainment,Talent & Agencies,Casting
+Media & Entertainment,Live Events & Venues,Theaters
+Media & Entertainment,Live Events & Venues,Arenas
+Media & Entertainment,Live Events & Venues,Festivals
+Real Estate & Construction,Real Estate,Residential Brokerage
+Real Estate & Construction,Real Estate,Commercial Brokerage
+Real Estate & Construction,Real Estate,Property Management
+Real Estate & Construction,Real Estate,REITs
+Real Estate & Construction,Real Estate,Development
+Real Estate & Construction,Construction,General Contractors
+Real Estate & Construction,Construction,Specialty Trades
+Real Estate & Construction,Construction,Heavy & Civil
+Real Estate & Construction,Construction,Design-Build
+Real Estate & Construction,Construction,EPC
+Real Estate & Construction,AEC Services,Architecture
+Real Estate & Construction,AEC Services,Engineering
+Real Estate & Construction,AEC Services,Surveying
+Real Estate & Construction,Building Materials,Cement/Concrete
+Real Estate & Construction,Building Materials,Steel/Metals
+Real Estate & Construction,Building Materials,Lumber/Wood
+Real Estate & Construction,Building Materials,Glass
+Real Estate & Construction,Building Materials,Plastics/Composites
+Real Estate & Construction,PropTech,Listing/Marketplaces
+Real Estate & Construction,PropTech,Property Mgmt Software
+Real Estate & Construction,PropTech,Smart Buildings/IoT
+Real Estate & Construction,PropTech,Construction Tech
+Financial Services,Banking,Retail/Consumer Banking
+Financial Services,Banking,Commercial/Corporate Banking
+Financial Services,Banking,Private Banking/Wealth
+Financial Services,Banking,Credit Unions
+Financial Services,Capital Markets & Investing,Investment Banking
+Financial Services,Capital Markets & Investing,Asset Management
+Financial Services,Capital Markets & Investing,Hedge Funds
+Financial Services,Capital Markets & Investing,Private Equity
+Financial Services,Capital Markets & Investing,Venture Capital
+Financial Services,Capital Markets & Investing,Broker-Dealers
+Financial Services,Payments & Money Movement,PSPs/Acquirers
+Financial Services,Payments & Money Movement,Gateways/Orchestration
+Financial Services,Payments & Money Movement,Cards/Issuing
+Financial Services,Payments & Money Movement,POS/Terminals
+Financial Services,Payments & Money Movement,Wallets/P2P
+Financial Services,Payments & Money Movement,BNPL
+Financial Services,Lending & Credit,Consumer Lending
+Financial Services,Lending & Credit,SMB Lending
+Financial Services,Lending & Credit,Mortgage/Real Estate
+Financial Services,Lending & Credit,Underwriting/Scoring
+Financial Services,Insurance,P&C
+Financial Services,Insurance,Life/Annuities
+Financial Services,Insurance,Health
+Financial Services,Insurance,Reinsurance
+Financial Services,Insurance,Brokerages/MGAs
+Financial Services,Fintech Infrastructure,Banking-as-a-Service
+Financial Services,Fintech Infrastructure,Core Banking
+Financial Services,Fintech Infrastructure,KYC/AML/Fraud
+Retail & eCommerce,Retail Formats,Department Stores
+Retail & eCommerce,Retail Formats,Big Box/Superstores
+Retail & eCommerce,Retail Formats,Warehouse Clubs
+Retail & eCommerce,Retail Formats,Specialty Retail
+Retail & eCommerce,Retail Formats,Convenience Stores
+Retail & eCommerce,Retail Formats,Dollar/Discount
+Retail & eCommerce,Categories,Grocery
+Retail & eCommerce,Categories,Electronics
+Retail & eCommerce,Categories,Home & Furniture
+Retail & eCommerce,Categories,Sporting Goods
+Retail & eCommerce,Categories,Books/Stationery
+Retail & eCommerce,Categories,Toys/Games
+Retail & eCommerce,Categories,Beauty
+Retail & eCommerce,Categories,Jewelry
+Retail & eCommerce,eCommerce,Marketplaces
+Retail & eCommerce,eCommerce,D2C Brands
+Retail & eCommerce,eCommerce,Dropship/Fulfillment
+Retail & eCommerce,eCommerce,Search/Merchandising
+Retail & eCommerce,eCommerce,Subscriptions
+Retail & eCommerce,Wholesale/B2B,Distributors
+Retail & eCommerce,Wholesale/B2B,Cash & Carry
+Hospitality & Travel,Lodging,Hotels
+Hospitality & Travel,Lodging,Resorts
+Hospitality & Travel,Lodging,Vacation Rentals
+Hospitality & Travel,Lodging,Hostels
+Hospitality & Travel,Food & Beverage (On-premise),Restaurants
+Hospitality & Travel,Food & Beverage (On-premise),Bars/Pubs
+Hospitality & Travel,Food & Beverage (On-premise),Cafes
+Hospitality & Travel,Food & Beverage (On-premise),Catering
+Hospitality & Travel,Travel Services,OTAs
+Hospitality & Travel,Travel Services,Tour Operators
+Hospitality & Travel,Travel Services,Cruises
+Hospitality & Travel,Travel Services,Car Rental
+Hospitality & Travel,Attractions & Recreation,Theme Parks
+Hospitality & Travel,Attractions & Recreation,Museums
+Hospitality & Travel,Attractions & Recreation,Casinos
+Education & Training,Institutions,K-12
+Education & Training,Institutions,Higher Education
+Education & Training,Institutions,Vocational/Trade Schools
+Education & Training,Services & Providers,Tutoring/Test Prep
+Education & Training,Services & Providers,Corporate Training/L&D
+Education & Training,Services & Providers,EdTech Platforms
+Manufacturing & Industrial,Industrial Sectors,Automotive
+Manufacturing & Industrial,Industrial Sectors,Aerospace & Defense
+Manufacturing & Industrial,Industrial Sectors,Electronics
+Manufacturing & Industrial,Industrial Sectors,Machinery/Automation
+Manufacturing & Industrial,Industrial Sectors,Chemicals
+Manufacturing & Industrial,Industrial Sectors,Plastics/Rubber
+Manufacturing & Industrial,Industrial Sectors,Metals/Fabrication
+Manufacturing & Industrial,Industrial Sectors,Paper/Packaging
+Manufacturing & Industrial,Industrial Sectors,Textiles
+Manufacturing & Industrial,Industrial Sectors,Food & Beverage Manufacturing
+Manufacturing & Industrial,Industrial Sectors,Pharma Manufacturing
+Manufacturing & Industrial,Industrial Services,Maintenance/Repair
+Manufacturing & Industrial,Industrial Services,Calibration/Testing
+Manufacturing & Industrial,Industrial Services,Industrial Design
+Manufacturing & Industrial,Automation & Robotics,Industrial Robots
+Manufacturing & Industrial,Automation & Robotics,CNC/Controls
+Manufacturing & Industrial,Automation & Robotics,Sensors/Instrumentation
+Agriculture & Natural Resources,Farming & Ranching,Row Crops
+Agriculture & Natural Resources,Farming & Ranching,Specialty Crops
+Agriculture & Natural Resources,Farming & Ranching,Organic Farming
+Agriculture & Natural Resources,Farming & Ranching,Ranching/Livestock
+Agriculture & Natural Resources,Forestry & Fisheries,Forestry/Timber
+Agriculture & Natural Resources,Forestry & Fisheries,Fishing
+Agriculture & Natural Resources,Forestry & Fisheries,Aquaculture
+Agriculture & Natural Resources,Ag Inputs & Services,Seed/Genetics
+Agriculture & Natural Resources,Ag Inputs & Services,Fertilizer/Crop Protection
+Agriculture & Natural Resources,Ag Inputs & Services,Equipment
+Agriculture & Natural Resources,Ag Inputs & Services,Co-ops
+Agriculture & Natural Resources,Ag Inputs & Services,Ag Finance/Insurance
+Agriculture & Natural Resources,AgTech,Precision Ag/IoT
+Agriculture & Natural Resources,AgTech,Drones/Imagery
+Agriculture & Natural Resources,AgTech,Farm Mgmt Software
+Telecommunications & Networking,Carriers & ISPs,Wireless/Mobile
+Telecommunications & Networking,Carriers & ISPs,Wireline
+Telecommunications & Networking,Carriers & ISPs,Fiber/Broadband
+Telecommunications & Networking,Carriers & ISPs,MVNOs
+Telecommunications & Networking,Infrastructure,Towers/Small Cells
+Telecommunications & Networking,Infrastructure,Backhaul/Transport
+Telecommunications & Networking,Infrastructure,Data Centers/Colocation
+Telecommunications & Networking,Services,Wholesale/Peering
+Telecommunications & Networking,Services,Managed Network Services
+Government & Public Sector,Agencies & Services,Federal
+Government & Public Sector,Agencies & Services,State & Local
+Government & Public Sector,Agencies & Services,Public Safety
+Government & Public Sector,Agencies & Services,Public Health
+Government & Public Sector,Agencies & Services,Public Education
+Government & Public Sector,Agencies & Services,Public Works/Utilities
+Government & Public Sector,Defense,Military/Defense Agencies
+Government & Public Sector,Defense,Defense Contractors
+Nonprofits & NGOs,Types,Charities
+Nonprofits & NGOs,Types,Foundations/Philanthropy
+Nonprofits & NGOs,Types,Advocacy/Policy
+Nonprofits & NGOs,Types,International NGOs
+Nonprofits & NGOs,Types,Religious Organizations
+Nonprofits & NGOs,Types,Arts & Culture Orgs
+Nonprofits & NGOs,Types,Community Services
+Consumer Goods,Household,Cleaning & Paper
+Consumer Goods,Household,Home Appliances
+Consumer Goods,Household,Home Care
+Consumer Goods,Personal Care,Skincare
+Consumer Goods,Personal Care,Haircare
+Consumer Goods,Personal Care,Oral Care
+Consumer Goods,Personal Care,Fragrance
+Consumer Goods,Baby & Kids,Diapers
+Consumer Goods,Baby & Kids,Feeding
+Consumer Goods,Baby & Kids,Toys
+Consumer Goods,Pet Care,Food
+Consumer Goods,Pet Care,Supplies
+Consumer Goods,Pet Care,Litter/Health
+Beauty & Personal Care,Services,Salons/Spas
+Beauty & Personal Care,Services,Barbershops
+Beauty & Personal Care,Services,Nail Salons
+Beauty & Personal Care,Services,Cosmetic Clinics/Med Spas
+Beauty & Personal Care,Brands & Retail,Cosmetics
+Beauty & Personal Care,Brands & Retail,Skincare
+Beauty & Personal Care,Brands & Retail,Haircare
+Beauty & Personal Care,Brands & Retail,Fragrance
+Beauty & Personal Care,Brands & Retail,Beauty Retailers
+Sports & Recreation,Organizations,Teams/Leagues
+Sports & Recreation,Organizations,Clubs/Studios
+Sports & Recreation,Organizations,Parks/Recreation
+Sports & Recreation,Products & Services,Sporting Goods
+Sports & Recreation,Products & Services,Coaching/Training
+Sports & Recreation,Products & Services,Facilities/Venues
+Sports & Recreation,Sports Tech,Wearables/Tracking
+Sports & Recreation,Sports Tech,Fan Engagement
+Sports & Recreation,Sports Tech,Ticketing
+Security & Defense (Physical),Security Services,Guarding/Patrol
+Security & Defense (Physical),Security Services,Executive Protection
+Security & Defense (Physical),Security Services,Event Security
+Security & Defense (Physical),Systems & Integrators,Alarms/Monitoring
+Security & Defense (Physical),Systems & Integrators,CCTV/Surveillance
+Security & Defense (Physical),Systems & Integrators,Access Control
+Security & Defense (Physical),Defense Industry,Weapons/Systems
+Security & Defense (Physical),Defense Industry,C4ISR
+Security & Defense (Physical),Defense Industry,Training/Simulation
+Environmental & Cleantech,Waste & Recycling,Solid Waste
+Environmental & Cleantech,Waste & Recycling,Hazardous Waste
+Environmental & Cleantech,Waste & Recycling,Recycling/Materials Recovery
+Environmental & Cleantech,Water & Air,Water Treatment
+Environmental & Cleantech,Water & Air,Wastewater
+Environmental & Cleantech,Water & Air,Air Quality/Pollution Control
+Environmental & Cleantech,Carbon & Sustainability,Carbon Markets/Offsets
+Environmental & Cleantech,Carbon & Sustainability,ESG Services
+Environmental & Cleantech,Carbon & Sustainability,Energy Efficiency
+"Printing, Packaging & Labeling",Printing,Commercial Printing
+"Printing, Packaging & Labeling",Printing,Digital/On-demand
+"Printing, Packaging & Labeling",Printing,Large Format/Signage
+"Printing, Packaging & Labeling",Packaging,Flexible Packaging
+"Printing, Packaging & Labeling",Packaging,Rigid Packaging
+"Printing, Packaging & Labeling",Packaging,Sustainable Packaging
+"Printing, Packaging & Labeling",Labeling & Converting,Labels
+"Printing, Packaging & Labeling",Labeling & Converting,Converters
+"Printing, Packaging & Labeling",Labeling & Converting,Coding/Marking
+Mining & Materials,Metals & Mining,Gold
+Mining & Materials,Metals & Mining,Base Metals
+Mining & Materials,Metals & Mining,Precious Metals
+Mining & Materials,Metals & Mining,Steel
+Mining & Materials,Non-metallic Minerals,Aggregates
+Mining & Materials,Non-metallic Minerals,Cement
+Mining & Materials,Non-metallic Minerals,Glass
+Mining & Materials,Non-metallic Minerals,Ceramics
+Mining & Materials,Materials,Specialty Chemicals
+Mining & Materials,Materials,Industrial Gases
+Mining & Materials,Materials,Composites
+HR & Staffing,Staffing & Recruiting,Temporary Staffing
+HR & Staffing,Staffing & Recruiting,Permanent Placement
+HR & Staffing,Staffing & Recruiting,Executive Search
+HR & Staffing,HR Services,PEO
+HR & Staffing,HR Services,Payroll
+HR & Staffing,HR Services,Benefits Administration
+HR & Staffing,HR Services,Background Screening
+HR & Staffing,HR Tech (Services-oriented),ATS
+HR & Staffing,HR Tech (Services-oriented),HRIS
+HR & Staffing,HR Tech (Services-oriented),Performance & Engagement
+Pets & Veterinary,Veterinary,Clinics
+Pets & Veterinary,Veterinary,Emergency/24-7
+Pets & Veterinary,Veterinary,Specialty/Referral
+Pets & Veterinary,Services,Grooming
+Pets & Veterinary,Services,Boarding/Daycare
+Pets & Veterinary,Services,Training
+Pets & Veterinary,Products,Pet Food
+Pets & Veterinary,Products,Supplies
+Pets & Veterinary,Products,Insurance
+Events & Exhibitions,Event Services,Event Planning
+Events & Exhibitions,Event Services,Trade Shows/Conferences
+Events & Exhibitions,Event Services,Exhibit Design/Booths
+Events & Exhibitions,Event Services,AV/Lighting
+Events & Exhibitions,Event Services,Catering (Events)
+Events & Exhibitions,Venues,Convention Centers
+Events & Exhibitions,Venues,Hotels/Ballrooms
+Events & Exhibitions,Venues,Outdoor/Festival Grounds

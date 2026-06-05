@@ -1,0 +1,33 @@
+[
+  {
+    "linkedinUrl": "https://www.linkedin.com/in/example-user-1",
+    "fullName": "Alex Example",
+    "headline": "Senior Software Engineer at Example Corp",
+    "email": "alex.example@example-domain.test",
+    "mobileNumber": "+10000000000",
+    "jobTitle": "Senior Software Engineer",
+    "companyName": "Example Corp",
+    "companyWebsite": "https://example-domain.test",
+    "companyLinkedin": "https://www.linkedin.com/company/example-corp",
+    "isJobSeeker": false,
+    "isRetired": false,
+    "isCreator": false,
+    "isInfluencer": false,
+    "isCurrentlyEmployed": true,
+    "about": "Synthetic fixture profile for normalizer tests.",
+    "experiences": [
+      {
+        "title": "Senior Software Engineer",
+        "companyName": "Example Corp",
+        "startDate": "2022-01",
+        "endDate": null,
+        "isCurrent": true
+      }
+    ],
+    "skills": ["TypeScript", "Security"],
+    "educations": [],
+    "location": "Example City, EX",
+    "city": "Example City",
+    "country": "EX"
+  }
+]

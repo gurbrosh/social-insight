@@ -1,0 +1,5 @@
+{
+  "verificationUrl": "https://app.crunchycone.com/auth/verify-email?token=abcd1234-sample-token",
+  "appName": "CrunchyCone Starter",
+  "supportEmail": "support@crunchycone.com"
+}

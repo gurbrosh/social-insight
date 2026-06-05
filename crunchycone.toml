@@ -1,0 +1,6 @@
+[project]
+id = "0199655c-41ab-77ce-b0bd-534c99a3f598"
+name = "Social Insight"
+slug = "social-insight"
+
+environment = "dev"

@@ -1,0 +1,339 @@
+---
+description: Authentication implementation guidelines
+globs: ["app/auth/**/*", "lib/auth/**/*", "components/auth/**/*", "app/api/auth/**/*"]
+---
+
+# Authentication Guidelines
+
+## Authentication Architecture
+
+### Core Functions (lib/auth/auth.ts)
+- `hashPassword(password)` - Hash passwords with bcrypt (10 salt rounds)
+- `verifyPassword(password, hash)` - Verify password against hash
+- `createSession(userId: string)` - Create HTTP-only cookie session (7 days) - userId is now ULID string
+- `getSession(token?)` - Get current session from cookie or token - returns {userId: string}
+- `clearSession()` - Clear session cookie
+
+### Token Functions (lib/auth/token.ts)
+- `generateToken(userId: string, type)` - Create JWT tokens with expiry - userId is ULID string
+- `verifyToken(token)` - Verify and decode JWT tokens - returns {userId: string, type: string}
+- **Token Types**: access (7d), verification (1d), reset (1h), magic_link (1d)
+
+### Permission Functions (lib/auth/permissions.ts)
+- `hasRole(userId: string, roleName)` - Check if user has specific role - userId is ULID string
+- `requireRole(roleName)` - Server action that redirects if role missing
+- `isAdmin(userId: string)` - Check admin status - userId is ULID string
+- `getCurrentUser()` - Get user with profile and roles - returns user with string ID
+- `checkAdminExists()` - Check if any admin user exists
+
+## Complete Authentication Flows
+
+### First-Time Setup
+```typescript
+// Check on every page load
+const adminExists = await checkAdminExists();
+if (!adminExists) {
+  redirect('/auth/setup-admin');
+}
+```
+
+### Protected Routes Pattern
+```typescript
+// Server Component protection
+const currentUser = await getCurrentUser();
+if (!currentUser) {
+  redirect('/auth/signin');
+}
+
+// Admin-only protection
+const isUserAdmin = await isAdmin(currentUser.id);
+if (!isUserAdmin) {
+  redirect('/');
+}
+```
+
+### API Route Protection
+```typescript
+// Check authentication
+const session = await getSession();
+if (!session) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+// Check admin access
+const isUserAdmin = await isAdmin(session.userId);
+if (!isUserAdmin) {
+  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+}
+
+// Prevent self-demotion
+if (userId === session.userId && roleName === "admin") {
+  return NextResponse.json(
+    { error: "Cannot remove your own admin role" },
+    { status: 400 }
+  );
+}
+```
+
+## Security Best Practices
+
+### Password Security
+```typescript
+// Always hash passwords
+const hashedPassword = await hashPassword(password);
+
+// Never store plain text passwords
+// Never log passwords
+// Use strong password requirements
+```
+
+### Session Security
+```typescript
+// HTTP-only cookies prevent XSS
+// SameSite cookies prevent CSRF
+// Secure flag in production
+// Appropriate expiry times
+
+cookieStore.set("auth-token", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 60 * 60 * 24 * 7, // 7 days
+  path: "/",
+});
+```
+
+### Token Security
+- Different token types for different purposes
+- Appropriate expiry times for each type
+- Server-side verification for sensitive operations
+- No token verification in client components (use API routes)
+
+## Email Flow Endpoints
+- **Verification**: `/auth/verify-email?token=...` (server component)
+- **Password Reset**: `/auth/reset-password?token=...` (client component with server verification)
+- **Magic Link**: `/api/auth/magic-link?token=...` (API route for security)
+
+## Server Action Authentication Patterns
+
+### Use Server Actions for Authentication (Not API Routes)
+
+#### Form-Based Authentication
+```typescript
+// app/actions/auth.ts
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+
+export async function signInAction(formData: FormData) {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+
+  // Validate credentials
+  const user = await prisma.user.findUnique({
+    where: { email, deleted_at: null }
+  })
+
+  if (!user || !(await verifyPassword(password, user.password))) {
+    throw new Error('Invalid credentials')
+  }
+
+  // Create session
+  await createSession(user.id)
+  
+  // Update last sign-in
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { last_signed_in: new Date() }
+  })
+
+  redirect('/')
+}
+
+export async function signUpAction(formData: FormData) {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  const firstName = formData.get('firstName') as string
+  const lastName = formData.get('lastName') as string
+
+  // Registration with transaction
+  const user = await prisma.$transaction(async (tx) => {
+    const hashedPassword = await hashPassword(password)
+    
+    const newUser = await tx.user.create({
+      data: { email, password: hashedPassword }
+    })
+    
+    await tx.userProfile.create({
+      data: { user_id: newUser.id, first_name: firstName, last_name: lastName }
+    })
+    
+    // Assign default user role
+    const userRole = await tx.role.findUnique({ where: { name: "user" } })
+    if (userRole) {
+      await tx.userRole.create({
+        data: { user_id: newUser.id, role_id: userRole.id }
+      })
+    }
+    
+    return newUser
+  })
+
+  // Send verification email
+  const token = generateToken(user.id, "verification")
+  await sendEmail({
+    to: email,
+    subject: "Verify your email",
+    html: getVerificationEmailTemplate(token, process.env.NEXT_PUBLIC_APP_URL!)
+  })
+
+  redirect('/auth/signin?message=Check your email to verify your account')
+}
+```
+
+#### Component Usage (Form Actions)
+```typescript
+// components/auth/SignInForm.tsx
+import { signInAction } from '@/app/actions/auth'
+
+export function SignInForm() {
+  return (
+    <form action={signInAction} className="space-y-4">
+      <input name="email" type="email" required />
+      <input name="password" type="password" required />
+      <button type="submit">Sign In</button>
+    </form>
+  )
+}
+```
+
+### Protected Server Actions
+
+#### Admin-Only Actions
+```typescript
+'use server'
+
+export async function createUserAction(formData: FormData) {
+  // 1. Authentication check (NOT middleware)
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect('/auth/signin')
+  }
+
+  // 2. Authorization check
+  if (!(await isAdmin(currentUser.id))) {
+    throw new Error('Admin access required')
+  }
+
+  // 3. Data operation
+  const email = formData.get('email') as string
+  const user = await prisma.user.create({
+    data: { email, password: hashedPassword }
+  })
+
+  // 4. Revalidate affected pages
+  revalidatePath('/admin/users')
+  revalidatePath('/admin')
+  
+  return { success: true, user }
+}
+```
+
+#### Role-Based Actions
+```typescript
+export async function updateUserRoleAction(userId: string, roleId: string, action: 'add' | 'remove') {
+  const currentUser = await getCurrentUser()
+  if (!currentUser || !(await isAdmin(currentUser.id))) {
+    throw new Error('Unauthorized')
+  }
+
+  // Prevent self-demotion protection
+  if (userId === currentUser.id && action === 'remove') {
+    const role = await prisma.role.findUnique({ where: { id: roleId } })
+    if (role?.name === 'admin') {
+      throw new Error('Cannot remove your own admin role')
+    }
+  }
+
+  // Database operation
+  if (action === 'add') {
+    await prisma.userRole.create({
+      data: { user_id: userId, role_id: roleId }
+    })
+  } else {
+    await prisma.userRole.updateMany({
+      where: { user_id: userId, role_id: roleId },
+      data: { deleted_at: new Date() }
+    })
+  }
+
+  // Revalidate all affected UI
+  revalidatePath('/admin/users')
+  revalidatePath('/admin')
+}
+```
+
+### CRITICAL: Don't Mix Patterns
+
+#### ❌ WRONG: Using API Routes for Forms
+```typescript
+// DON'T do this - mixing fetch with form data
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  const response = await fetch('/api/auth/signin', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  })
+}
+```
+
+#### ✅ CORRECT: Pure Server Action
+```typescript
+// DO this - direct server action
+<form action={signInAction}>
+  <input name="email" />
+  <input name="password" />
+  <button type="submit">Sign In</button>
+</form>
+```
+
+### Exception: API Routes for Cookie-Setting Operations
+
+**Only use API routes when you need to set cookies securely:**
+```typescript
+// app/api/auth/magic-link/route.ts - Cookie setting requires API route
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const token = searchParams.get('token')
+
+  const { userId } = verifyToken(token!)
+  await createSession(userId) // Sets HTTP-only cookie
+
+  return NextResponse.redirect(new URL('/?message=Successfully signed in', request.url))
+}
+```
+
+## Common Database Patterns
+```typescript
+// User registration with profile and role assignment
+await prisma.$transaction(async (tx) => {
+  const user = await tx.user.create({
+    data: { email, password: hashedPassword }
+  });
+  
+  await tx.userProfile.create({
+    data: { user_id: user.id, first_name, last_name }
+  });
+  
+  // Assign default user role
+  const userRole = await tx.role.findUnique({ where: { name: "user" } });
+  if (userRole) {
+    await tx.userRole.create({
+      data: { user_id: user.id, role_id: userRole.id }
+    });
+  }
+  
+  return user;
+});
+```

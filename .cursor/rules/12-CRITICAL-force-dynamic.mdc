@@ -1,0 +1,123 @@
+# Force Dynamic Rendering Rule
+
+## CRITICAL: Always Use Force Dynamic for All Routes
+
+### Rule Overview
+**ALL pages and API routes MUST include `export const dynamic = "force-dynamic"` to prevent static generation issues and ensure proper server-side rendering.**
+
+### Why This Rule Exists
+- **Prevents build timeouts** in Docker and production environments
+- **Ensures fresh data** on every request instead of stale static content
+- **Required for authentication-dependent pages** and admin functionality
+- **Prevents static generation errors** with dynamic content and database queries
+- **Essential for CLI commands, file system operations, and external API calls**
+
+### Implementation Requirements
+
+#### 1. All Page Components (.tsx files in app/)
+```typescript
+// REQUIRED: Add this to EVERY page component
+export const dynamic = "force-dynamic";
+
+export default function PageComponent() {
+  // Component implementation
+}
+```
+
+#### 2. All API Routes (.ts files in app/api/)
+```typescript
+// REQUIRED: Add this to EVERY API route
+export const dynamic = "force-dynamic";
+
+export async function GET(request: NextRequest) {
+  // API implementation
+}
+```
+
+### Files That MUST Have Force Dynamic
+
+#### Pages (app/*/page.tsx)
+- All admin pages (`/admin/*`)
+- All project pages (`/projects/*`)
+- All auth pages (`/auth/*`)
+- Profile page (`/profile`)
+- Home page (`/`)
+
+#### API Routes (app/api/*/route.ts)
+- All admin API routes (`/api/admin/*`)
+- All project API routes (`/api/projects/*`)
+- All auth API routes (`/api/auth/*`)
+- All storage API routes (`/api/storage/*`)
+- Health check (`/api/health`)
+- Avatar API (`/api/avatar`)
+- Debug client (`/api/debug-client`)
+
+### Exceptions (DO NOT add force-dynamic)
+- **Client components only** (marked with `"use client"` and no server-side logic)
+- **Static assets** (images, icons, etc.)
+- **Middleware files** (middleware.ts)
+
+### Code Templates
+
+#### Page Template
+```typescript
+import { /* imports */ } from "/* paths */";
+
+export const dynamic = "force-dynamic";
+
+export default function PageName() {
+  // Page implementation
+}
+```
+
+#### API Route Template
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { /* other imports */ } from "/* paths */";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(request: NextRequest) {
+  // API implementation
+}
+
+export async function POST(request: NextRequest) {
+  // API implementation
+}
+```
+
+### Verification Checklist
+Before committing any new page or API route:
+- [ ] Does the file have `export const dynamic = "force-dynamic";`?
+- [ ] Is it placed after imports but before the main export?
+- [ ] Does the build show the route as dynamic (ƒ) not static (○)?
+
+### Build Verification
+After adding force-dynamic exports, verify with:
+```bash
+npm run build
+```
+
+Look for:
+- ✅ All routes marked with `ƒ` (dynamic)
+- ✅ No routes marked with `○` (static) except assets
+- ✅ Build completes successfully without timeouts
+
+### Common Mistakes to Avoid
+- ❌ Forgetting to add force-dynamic to new routes
+- ❌ Adding force-dynamic to client-only components
+- ❌ Placing force-dynamic in wrong location (should be after imports)
+- ❌ Assuming some routes don't need it (they all do in this project)
+
+### Enforcement
+- **Pre-commit hooks** should check for missing force-dynamic exports
+- **Code reviews** must verify force-dynamic is present
+- **Build failures** due to missing force-dynamic are critical issues
+- **All new routes** must follow this pattern
+
+### Related Rules
+- See `.cursor/rules/10-CRITICAL-dynamic-rendering.mdc` for technical details
+- See `.cursor/rules/11-TROUBLESHOOT-docker-builds.mdc` for build issues
+
+## Summary
+**EVERY page and API route in this project MUST have `export const dynamic = "force-dynamic"` to ensure proper server-side rendering and prevent build issues. This is not optional - it's required for the application to function correctly.**

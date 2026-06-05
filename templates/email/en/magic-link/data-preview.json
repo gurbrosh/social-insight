@@ -1,0 +1,5 @@
+{
+  "signInUrl": "https://app.crunchycone.com/api/auth/magic-link?token=abcd1234-sample-token",
+  "appName": "CrunchyCone Starter",
+  "supportEmail": "support@crunchycone.com"
+}

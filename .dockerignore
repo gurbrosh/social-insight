@@ -1,0 +1,75 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Next.js build output
+.next
+out
+dist
+
+# Database files - allow copying for SQLite containers
+# Uncomment these lines if you want to exclude database files from Docker build:
+# db/
+# prisma/db/
+# *.db
+# *.db-journal
+# *.sqlite
+# *.sqlite3
+
+# Environment files (will be provided externally)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage
+.nyc_output
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
+
+# Development files
+.eslintcache
+.cursor/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Build artifacts
+*.tsbuildinfo
+
+# Docker files (avoid recursive copy)
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.yaml

@@ -1,0 +1,15 @@
+{{ appName }}
+
+Password Reset Required
+
+An administrator has initiated a password reset for your {{ appName }} account. You must create a new password to continue accessing your account.
+
+Click the link below to set your new password:
+
+{{ resetUrl }}
+
+This link will expire in {{ expiryHours }} hour{% if expiryHours != 1 %}s{% endif %}. If you have questions about this password reset, please contact your administrator or our support team.
+
+Questions? Contact us at {{ supportEmail }}
+
+© {{ "now" | date: "%Y" }} {{ appName }}. All rights reserved.

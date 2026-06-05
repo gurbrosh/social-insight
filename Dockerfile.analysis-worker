@@ -1,0 +1,15 @@
+# Standalone analysis worker image (Node + tsx). Does not start Next.js.
+# Build: docker build -f Dockerfile.analysis-worker -t analysis-worker .
+# Run:   docker run --env-file .env analysis-worker --projectId=<ulid>
+#
+# Mount or configure DATABASE_URL for your environment; SQLite paths must be reachable in the container.
+
+FROM node:24-slim
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps
+COPY . .
+RUN npx prisma generate
+ENV NODE_ENV=production
+ENTRYPOINT ["npx", "tsx", "scripts/run-analysis-worker.ts"]

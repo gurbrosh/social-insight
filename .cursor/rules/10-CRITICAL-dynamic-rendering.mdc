@@ -1,0 +1,133 @@
+# Dynamic Rendering Rules - CRITICAL
+
+## Force Dynamic Rendering Requirements
+
+**ALWAYS add `export const dynamic = "force-dynamic";` to:**
+
+### Pages That Must Be Dynamic
+- All admin pages (`app/admin/*/page.tsx`)
+- Any page with authentication checks
+- Pages accessing environment variables or file system
+- Pages making database queries at render time
+- Pages with user-specific content
+
+### API Routes That Must Be Dynamic
+- Routes using `execSync`, `spawn`, or `exec` (CLI commands)
+- Routes making external API calls
+- Routes accessing file system (`fs.readFileSync`, etc.)
+- Routes with database operations
+- Routes with authentication/authorization checks
+- Routes calling CrunchyCone CLI or other external services
+
+## Syntax and Placement
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+// other imports...
+
+// Force dynamic rendering - ALWAYS add this comment
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+  // route logic
+}
+```
+
+## Why This Is Critical
+
+**Build Issues Without Dynamic Rendering:**
+- Build timeouts from external processes
+- Memory exhaustion during static generation  
+- CLI commands failing in Docker builds
+- Authentication errors during build time
+- File system access issues in containers
+
+**Performance Benefits:**
+- Faster builds (no external calls during build)
+- More reliable Docker deployments
+- Better resource utilization
+- Prevents build worker crashes
+
+## When NOT to Use Dynamic
+
+Only skip `force-dynamic` for:
+- Pure static pages with no external dependencies
+- Marketing/landing pages
+- Documentation pages
+- Pages that never change per user
+
+## Detection Patterns
+
+**Add dynamic rendering if code contains:**
+- `execSync`, `exec`, `spawn`
+- `fs.readFile`, `fs.writeFile`, `fs.existsSync`
+- `process.env` access (except for static config)
+- Database queries (`prisma`, SQL)
+- `auth()`, `getSession()`, authentication checks
+- External API calls (`fetch` to third-party APIs)
+- CrunchyCone CLI calls
+- Storage provider operations
+- `await searchParams` or dynamic request data
+- `await request.json()` in pages
+
+## Docker Build Timeout Troubleshooting
+
+**Symptoms of Missing Dynamic Rendering:**
+```
+#16 37.64    Generating static pages (0/10) ...
+#16 38.54    Generating static pages (2/10) 
+[HANGS HERE - Build times out or gets SIGKILL]
+```
+
+**Diagnostic Commands:**
+```bash
+# Find pages without dynamic exports
+find app -name "page.tsx" -exec grep -L "export const dynamic" {} \;
+
+# Check build performance
+time npm run build
+
+# Monitor build progress  
+npm run build 2>&1 | grep -E "(Generating|pages)"
+```
+
+**Common Culprits in Docker Builds:**
+1. **Profile/user pages** - Database queries for user data
+2. **Admin pages** - Role checks and authentication
+3. **Auth pages** - Token verification, password resets
+4. **Environment pages** - CLI commands, file system access
+5. **Setup pages** - Database initialization checks
+
+**Fix Pattern:**
+```typescript
+// Before (causes timeouts)
+export default async function Page() {
+  const session = await auth(); // ❌ Runs during build
+  const data = await prisma.user.findMany(); // ❌ Runs during build
+}
+
+// After (works in Docker)  
+export const dynamic = "force-dynamic"; // ✅ Add this line
+
+export default async function Page() {
+  const session = await auth(); // ✅ Runs at request time
+  const data = await prisma.user.findMany(); // ✅ Runs at request time
+}
+```
+
+**Verification:**
+- Static page count should decrease
+- Build completes without hanging
+- Pages show ƒ (dynamic) not ○ (static) in build output
+
+## NEVER
+
+- Never rely on static generation for admin functionality
+- Never assume external services are available during build
+- Never let authentication happen during static generation
+- Never skip this for convenience - it causes production issues
+- Never ignore Docker build timeouts - they indicate missing dynamic exports
+
+---
+
+**PRIORITY: CRITICAL** - Build failures in production are unacceptable.

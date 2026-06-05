@@ -1,0 +1,8 @@
+{
+  "companies": ["https://www.linkedin.com/company/example-corp"],
+  "jobTitles": ["Software Engineer", "Security Engineer"],
+  "maxItems": 25,
+  "profileScraperMode": "Short ($4 per 1k)",
+  "recentlyChangedJobs": false,
+  "companyBatchMode": "parallel"
+}

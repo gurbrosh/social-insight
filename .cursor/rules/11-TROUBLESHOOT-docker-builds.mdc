@@ -1,0 +1,193 @@
+# Docker Build Troubleshooting Guide - CRITICAL
+
+## Common Docker Build Issues & Solutions
+
+### Issue 1: Build Hangs at "Generating static pages"
+
+**Symptoms:**
+```dockerfile
+#16 37.64    Generating static pages (0/10) ...
+#16 38.54    Generating static pages (2/10) 
+[HANGS - Eventually times out with SIGKILL]
+```
+
+**Root Cause:**
+Pages are trying to execute server-side operations during static generation:
+- Database queries (`await prisma.*`)
+- Authentication checks (`await auth()`)
+- CLI commands (`execSync()`)
+- File system operations (`fs.readFileSync()`)
+- External API calls
+
+**Solution:**
+Add `export const dynamic = "force-dynamic";` to problematic pages.
+
+**Diagnostic Steps:**
+```bash
+# 1. Find pages without dynamic exports
+find app -name "page.tsx" -exec grep -L "export const dynamic" {} \;
+
+# 2. Check each page for server operations
+grep -r "await auth\|await prisma\|execSync\|await.*searchParams" app/
+
+# 3. Add dynamic rendering to all pages with server operations
+# See: 10-CRITICAL-dynamic-rendering.mdc
+```
+
+### Issue 2: Memory Exhaustion (OOM Kill)
+
+**Symptoms:**
+```dockerfile
+Build worker exited with code: null and signal: SIGKILL
+npm WARN exec The following package was not found and will be installed: @next/env
+```
+
+**Root Cause:**
+- Too many static pages being generated simultaneously
+- Large database queries during build
+- Memory leaks from external processes
+
+**Solution:**
+1. Add dynamic rendering to reduce static page count
+2. Use `.dockerignore` to exclude unnecessary files
+3. Increase Docker memory limits if needed
+
+### Issue 3: CLI Command Failures
+
+**Symptoms:**
+```dockerfile
+Error: Command failed: npx crunchycone-cli auth check
+Error: ENOENT: no such file or directory
+```
+
+**Root Cause:**
+- CLI tools not available in Docker container
+- Environment variables missing
+- Commands executing during build instead of runtime
+
+**Solution:**
+1. Add `export const dynamic = "force-dynamic";` to pages using CLI
+2. Ensure CLI tools are installed in Dockerfile
+3. Move CLI operations to runtime API calls
+
+### Issue 4: Database Connection Errors
+
+**Symptoms:**
+```dockerfile
+Error: P1001: Can't reach database server
+Error: connect ECONNREFUSED 127.0.0.1:5432
+```
+
+**Root Cause:**
+- Database queries during static generation
+- Database not available during build phase
+- Connection strings pointing to localhost
+
+**Solution:**
+1. Add dynamic rendering to pages with database queries
+2. Use environment-specific database URLs
+3. Move database operations to API routes or server actions
+
+## Prevention Checklist
+
+### Before Docker Build:
+- [ ] All admin pages have `export const dynamic = "force-dynamic"`
+- [ ] All auth pages with server logic are dynamic
+- [ ] No database queries in page components
+- [ ] No CLI commands in page render functions
+- [ ] Test build locally: `npm run build`
+- [ ] Verify static page count is reasonable (< 30)
+
+### Dockerfile Best Practices:
+```dockerfile
+# Use specific Node version
+FROM node:24-alpine
+
+# Install dependencies first (better caching)
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy source code
+COPY . .
+
+# Build with proper memory limits
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN npm run build
+
+# Use multi-stage builds to reduce image size
+```
+
+### Docker Compose Configuration:
+```yaml
+services:
+  app:
+    build: .
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://user:pass@db:5432/dbname
+    depends_on:
+      - db
+    # Increase memory if needed
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+```
+
+## Debugging Commands
+
+### Local Testing:
+```bash
+# Test build performance
+time npm run build
+
+# Monitor memory usage
+docker stats
+
+# Check static vs dynamic pages
+npm run build | grep -E "○|ƒ"
+
+# Verify dynamic exports
+grep -r "export const dynamic" app/
+```
+
+### Container Debugging:
+```bash
+# Build with verbose output
+docker build --progress=plain --no-cache .
+
+# Run container interactively
+docker run -it --rm your-image /bin/sh
+
+# Check container logs
+docker logs container-name
+```
+
+## Emergency Fixes
+
+### Quick Fix for Stuck Builds:
+Add dynamic rendering to ALL pages:
+```bash
+find app -name "page.tsx" -exec sed -i '/^import/a\\nexport const dynamic = "force-dynamic";' {} \;
+```
+
+### Rollback Strategy:
+```bash
+# If build still fails, disable problematic features temporarily
+export NEXT_SKIP_STATIC_PAGES=true
+npm run build
+```
+
+## Monitoring & Alerts
+
+Set up monitoring for:
+- Build duration > 10 minutes
+- Memory usage > 2GB during build
+- Static page count > 50
+- Build failure rate > 5%
+
+**Remember:** Dynamic rendering is ALWAYS better than build failures in production.
+
+---
+
+**PRIORITY: CRITICAL** - Docker build issues block deployments and cause downtime.

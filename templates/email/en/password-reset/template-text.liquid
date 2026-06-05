@@ -1,0 +1,13 @@
+{{ appName }}
+
+Reset Your Password
+
+You requested to reset your password. Click the link below to create a new password for your {{ appName }} account:
+
+{{ resetUrl }}
+
+This link will expire in {{ expiryHours }} hour{% if expiryHours != 1 %}s{% endif %}. If you didn't request a password reset, you can safely ignore this email.
+
+Questions? Contact us at {{ supportEmail }}
+
+© {{ "now" | date: "%Y" }} {{ appName }}. All rights reserved.

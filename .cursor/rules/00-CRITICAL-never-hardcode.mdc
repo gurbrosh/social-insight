@@ -1,0 +1,36 @@
+---
+description: NEVER hardcode project-specific or user data—use generic placeholders only.
+alwaysApply: true
+---
+
+# 🚫 CRITICAL: Never Hardcode Project-Specific or User Data
+
+## Rule: Zero Tolerance for Hardcoding
+
+**NEVER** put the user's actual project data, examples, or domain into code, prompts, comments, or documentation.
+
+### What counts as hardcoding (FORBIDDEN)
+
+- **Real names from the project**: brand names, theme names, company names, product names, people, places, or any proper nouns that appear in the user's data, UI, or examples.
+- **Domain-specific examples drawn from the user's project**: e.g. if the user has airlines, do NOT use "Delta Airlines", "American Airlines", "PSA", or any real airline/brand as examples—even in prompts or comments.
+- **User-provided examples reused literally**: if the user pastes "Frustrated with Delta Airlines" as an example, do NOT copy that exact phrase into prompts, system messages, or code. Use a generic placeholder instead.
+
+### What to do instead (REQUIRED)
+
+- **Prompts and system messages**: Use generic placeholders only, e.g. `[Entity]`, `[Brand]`, `[Theme Name]`, "the entity named in the theme", "another brand in the project", "a different entity in the same domain".
+- **Comments and docs**: Use placeholders like "e.g. Frustrated with [Brand]", "e.g. [Entity]", or "the theme's entity"—never the user's real theme/brand names.
+- **Logic**: Derive everything from runtime data (theme name, project brands, post content). No literal project-specific strings in code.
+
+### Checklist before adding examples
+
+1. Could this example have come from the user's project or conversation? → If yes, use a placeholder.
+2. Is this a proper noun or domain-specific term (airline, brand, theme name)? → Use `[Entity]`, `[Brand]`, or generic wording.
+3. Would this work for any project in any domain? → If no, rewrite until it does.
+
+### Why this matters
+
+- Code and prompts are reused across projects and users.
+- Hardcoded examples bias the product toward one project and confuse other users.
+- Fixing it later wastes time and erodes trust.
+
+**When in doubt: use a generic placeholder. Never use the user's real data as example text in prompts, comments, or docs.**

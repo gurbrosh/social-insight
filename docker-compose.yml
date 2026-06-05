@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # Database configuration
+      # For SQLite (default): uses a file in the container
+      # For external DB: override with PostgreSQL/MySQL connection string
+      DATABASE_URL: ${DATABASE_URL:-file:/app/prisma/db/prod.db}
+
+      # Security - MUST be changed in production
+      JWT_SECRET: ${JWT_SECRET}
+
+      # Application configuration
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NODE_ENV: ${NODE_ENV:-production}
+
+      # Email configuration (optional)
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@crunchycone.app}
+
+      # Optional: Email provider configuration
+      # SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      # RESEND_API_KEY: ${RESEND_API_KEY}
+      # AWS_SES_REGION: ${AWS_SES_REGION}
+      # SMTP_HOST: ${SMTP_HOST}
+      # SMTP_PORT: ${SMTP_PORT}
+      # SMTP_USER: ${SMTP_USER}
+      # SMTP_PASS: ${SMTP_PASS}
+
+    volumes:
+      # Mount database directory for persistence (SQLite only)
+      # Comment out if using external database
+      - ./docker-data/db:/app/prisma/db
+
+    restart: unless-stopped
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/api/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)}).on('error', () => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s

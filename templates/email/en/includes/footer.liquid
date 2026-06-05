@@ -1,0 +1,18 @@
+<!-- Common Footer -->
+<mj-section background-color="#f5f5f5" padding="30px">
+  <mj-column>
+    <mj-text align="center" font-size="14px" color="#666666" line-height="20px">
+      Questions? Contact us at
+      <a href="mailto:{{ supportEmail | default: 'support@example.com' }}" style="color: #0066cc">{{ supportEmail | default: "support@example.com" }}</a>
+    </mj-text>
+    <mj-text
+      align="center"
+      font-size="12px"
+      color="#999999"
+      line-height="18px"
+      padding-top="10px"
+    >
+      © {{ "now" | date: "%Y" }} {{ appName | default: "CrunchyCone" }}. All rights reserved.
+    </mj-text>
+  </mj-column>
+</mj-section>

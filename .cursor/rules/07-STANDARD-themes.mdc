@@ -1,0 +1,426 @@
+---
+description: TypeScript-based theme system with next-themes and Tailwind CSS
+globs: ["themes/**/*.ts", "app/globals.css", "components/theme-*.tsx", "app/layout.tsx", "tailwind.config.ts"]
+---
+
+# TypeScript Theme System Guidelines
+
+## Modern Theme Architecture
+
+The application uses a **TypeScript-based theme system** with `next-themes` and organized theme definitions for maximum maintainability and type safety.
+
+### Core Components
+- **Theme Registry**: Centralized theme definitions in `/themes/`
+- **Type Definitions**: Complete TypeScript interfaces for theme structure
+- **Theme Utilities**: Helper functions for theme management and validation
+- **ThemeProvider**: Wraps the entire application with all custom themes
+- **ThemeToggle**: Dynamic UI component that reads from theme registry
+- **CSS Variables**: Type-safe colors that adapt to the current theme
+
+### Directory Structure
+```
+themes/
+├── types.ts              # TypeScript interfaces and types
+├── index.ts               # Theme registry and utility functions
+├── base/                  # Core system themes
+│   ├── light.ts          # Light theme
+│   └── dark.ts           # Dark theme
+└── custom/                # Custom themes
+    ├── ocean.ts          # Ocean Blue theme
+    ├── forest.ts         # Forest Green theme
+    └── midnight.ts       # Midnight Purple theme
+```
+
+### Current Implementation
+```typescript
+// app/layout.tsx - All themes automatically included
+<ThemeProvider
+  attribute="class"
+  defaultTheme="system"
+  enableSystem
+  themes={["light", "dark", "system", "ocean", "forest", "midnight"]}
+  disableTransitionOnChange
+>
+  {children}
+</ThemeProvider>
+```
+
+```typescript
+// components/theme-toggle.tsx - Dynamically loads from registry
+import { getThemesByCategory } from "@/themes";
+
+const baseThemes = getThemesByCategory("base");
+const customThemes = getThemesByCategory("custom");
+```
+
+## Adding a New Theme (TypeScript Approach)
+
+### Step 1: Create Theme Definition File
+Create `themes/custom/yourtheme.ts`:
+
+```typescript
+import { Theme } from "../types";
+
+export const yourTheme: Theme = {
+  name: "your-theme",           // CSS class name
+  label: "Your Theme",          // Display name
+  description: "Amazing colors", // Description
+  category: "custom",           // Category
+  icon: "Star",                 // Lucide icon name
+  emoji: "⭐",                  // Optional emoji
+  radius: "0.5rem",            // Border radius
+  colors: {
+    // All color variables in HSL format
+    background: "210 100% 98%",
+    foreground: "210 100% 10%",
+    card: "210 50% 100%",
+    cardForeground: "210 100% 10%",
+    popover: "210 50% 100%",
+    popoverForeground: "210 100% 10%",
+    primary: "200 100% 50%",
+    primaryForeground: "210 100% 98%",
+    secondary: "190 60% 85%",
+    secondaryForeground: "210 100% 10%",
+    muted: "200 30% 90%",
+    mutedForeground: "210 50% 40%",
+    accent: "190 80% 70%",
+    accentForeground: "210 100% 10%",
+    destructive: "350 80% 55%",
+    destructiveForeground: "210 100% 98%",
+    border: "210 40% 85%",
+    input: "210 40% 85%",
+    ring: "200 100% 50%",
+  },
+};
+```
+
+### Step 2: Register Theme in Registry
+Add to `themes/index.ts`:
+
+```typescript
+// Import your theme
+import { yourTheme } from "./custom/yourtheme";
+
+// Add to registry
+export const themes: ThemeRegistry = {
+  // ... existing themes
+  "your-theme": yourTheme,
+};
+
+// Export for direct import
+export { yourTheme };
+```
+
+### Step 3: Generate and Add CSS
+Use utility function to generate CSS:
+
+```typescript
+import { generateThemeCSS } from "@/themes";
+
+const css = generateThemeCSS(yourTheme);
+// Copy the generated CSS to app/globals.css
+```
+
+### Step 4: Update ThemeProvider
+Add theme name to `app/layout.tsx`:
+
+```typescript
+<ThemeProvider
+  themes={["light", "dark", "system", "ocean", "forest", "midnight", "your-theme"]}
+  // ... other props
+>
+```
+
+## Setting a Default Theme
+
+### Option 1: Fixed Default Theme
+Set a specific theme as default in `app/layout.tsx`:
+
+```typescript
+<ThemeProvider
+  attribute="class"
+  defaultTheme="dark"  // Changed from "system" to "dark"
+  enableSystem
+  disableTransitionOnChange
+>
+```
+
+### Option 2: Disable System Theme
+Remove system theme detection:
+
+```typescript
+<ThemeProvider
+  attribute="class"
+  defaultTheme="light"
+  enableSystem={false}  // Disable system theme detection
+  disableTransitionOnChange
+>
+```
+
+## Disabling Theme Switching
+
+### Option 1: Remove Theme Toggle (Keep Single Theme)
+
+1. Remove ThemeToggle imports and components from all files:
+```typescript
+// Remove from: app/layout.tsx, app/page.tsx, app/admin/layout.tsx, etc.
+import { ThemeToggle } from "@/components/theme-toggle"
+// Remove: <ThemeToggle />
+```
+
+2. Set a fixed theme in `app/layout.tsx`:
+```typescript
+<ThemeProvider
+  attribute="class"
+  defaultTheme="light"  // or "dark"
+  enableSystem={false}
+  forcedTheme="light"   // Forces this theme, ignores user preference
+>
+```
+
+### Option 2: Conditional Theme Toggle (Feature Flag)
+
+1. Create an environment variable in `.env`:
+```env
+NEXT_PUBLIC_ENABLE_THEME_TOGGLE=false
+```
+
+2. Conditionally render ThemeToggle:
+```typescript
+// In any component with ThemeToggle
+{process.env.NEXT_PUBLIC_ENABLE_THEME_TOGGLE === 'true' && <ThemeToggle />}
+```
+
+### Option 3: Remove Theme System Entirely
+
+1. Remove `next-themes` from package.json
+2. Remove ThemeProvider from `app/layout.tsx`
+3. Remove all ThemeToggle components
+4. Update `app/globals.css` to use only `:root` variables (no .dark class)
+5. Update `tailwind.config.ts` to remove dark mode configuration
+
+## TypeScript Theme Features
+
+### Type Safety
+All themes are fully typed with TypeScript interfaces:
+
+```typescript
+interface Theme {
+  name: string;
+  label: string;
+  description: string;
+  category: ThemeCategory;
+  colors: ThemeColors;
+  radius: string;
+  icon?: string;
+  emoji?: string;
+}
+```
+
+### Theme Utilities
+Built-in utility functions for theme management:
+
+```typescript
+import { 
+  getAllThemes, 
+  getTheme, 
+  getThemesByCategory,
+  validateTheme,
+  generateThemeCSS 
+} from "@/themes";
+
+// Get all themes
+const allThemes = getAllThemes();
+
+// Get specific theme
+const oceanTheme = getTheme("ocean");
+
+// Get themes by category
+const customThemes = getThemesByCategory("custom");
+
+// Validate theme structure
+const validation = validateTheme(newTheme);
+
+// Generate CSS from theme object
+const css = generateThemeCSS(oceanTheme);
+```
+
+### Tailwind v4 Compatibility
+This theme system is designed for future Tailwind v4 migration:
+- ✅ **CSS Variables** - Native v4 support
+- ✅ **Zero Runtime** - Build-time generation ready
+- ✅ **Type Safety** - Enhanced TypeScript integration
+- ✅ **Future Proof** - Ready for v4 features
+
+## Theme Color Guidelines
+
+### Color Format
+Colors use HSL format without commas:
+```css
+/* Correct format */
+--primary: 217 91% 60%;
+
+/* Wrong format */
+--primary: hsl(217, 91%, 60%);
+```
+
+### Required Color Variables
+Every theme MUST define these variables:
+- `--background` / `--foreground`
+- `--card` / `--card-foreground`
+- `--primary` / `--primary-foreground`
+- `--secondary` / `--secondary-foreground`
+- `--muted` / `--muted-foreground`
+- `--accent` / `--accent-foreground`
+- `--destructive` / `--destructive-foreground`
+- `--border`
+- `--input`
+- `--ring`
+
+### Optional Variables
+- `--radius` (border radius)
+- `--chart-1` through `--chart-5` (for data visualization)
+
+## Using Theme Colors in Components
+
+### Tailwind Classes
+```typescript
+// Background colors
+<div className="bg-background text-foreground">
+<div className="bg-card text-card-foreground">
+<div className="bg-primary text-primary-foreground">
+
+// Border colors
+<div className="border-border">
+<input className="border-input">
+
+// Text colors
+<p className="text-muted-foreground">
+<h1 className="text-primary">
+```
+
+### Custom CSS
+```css
+.custom-element {
+  /* Use RGB for opacity support */
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--border));
+}
+
+/* With opacity */
+.custom-element-faded {
+  background-color: hsl(var(--primary) / 0.5);
+}
+```
+
+## Theme Persistence
+
+Themes are automatically persisted to localStorage by `next-themes`:
+- Key: `theme`
+- Values: `light`, `dark`, `system`, or custom theme names
+- Restored on page load
+- Synced across tabs
+
+## Testing Themes
+
+### Manual Testing Checklist
+- [ ] All text is readable in all themes
+- [ ] Interactive elements have sufficient contrast
+- [ ] Hover states are visible
+- [ ] Focus indicators work in all themes
+- [ ] No color flashing on page load
+- [ ] Theme persists after refresh
+- [ ] System theme changes are detected (if enabled)
+
+### Accessibility Testing
+```typescript
+// Ensure WCAG AA compliance
+// Foreground/background combinations should have:
+// - Normal text: 4.5:1 contrast ratio
+// - Large text: 3:1 contrast ratio
+// - Interactive elements: 3:1 contrast ratio
+```
+
+## Common Theme Patterns
+
+### Conditional Styling Based on Theme
+```typescript
+import { useTheme } from "next-themes"
+
+function Component() {
+  const { theme, resolvedTheme } = useTheme()
+  
+  // Use resolvedTheme for system theme
+  const isDark = resolvedTheme === 'dark'
+  
+  return (
+    <div className={isDark ? 'special-dark-style' : 'special-light-style'}>
+      Content
+    </div>
+  )
+}
+```
+
+### Theme-Specific Images
+```typescript
+function ThemedLogo() {
+  const { resolvedTheme } = useTheme()
+  
+  return (
+    <Image
+      src={resolvedTheme === 'dark' ? '/logo-dark.png' : '/logo-light.png'}
+      alt="Logo"
+    />
+  )
+}
+```
+
+### Loading State for Theme
+```typescript
+function Component() {
+  const [mounted, setMounted] = useState(false)
+  const { theme } = useTheme()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null // or loading skeleton
+  }
+
+  return <div>Theme: {theme}</div>
+}
+```
+
+## Performance Considerations
+
+### Preventing Flash of Unstyled Content (FOUC)
+The current setup prevents FOUC using:
+1. `disableTransitionOnChange` prop on ThemeProvider
+2. Script injection in `next-themes` for early theme detection
+3. CSS variables that are immediately available
+
+### Optimizing Theme Switches
+- Use CSS transitions for smooth color changes
+- Avoid heavy computations in theme-dependent components
+- Consider using `useMemo` for theme-dependent calculations
+
+## Troubleshooting
+
+### Theme Not Applying
+1. Check ThemeProvider is wrapping the app
+2. Verify CSS variables are defined for the theme
+3. Check for typos in theme names
+4. Clear localStorage and retry
+
+### Flash on Load
+1. Ensure `disableTransitionOnChange` is set
+2. Check that ThemeProvider is in the root layout
+3. Verify no client-side theme logic runs before hydration
+
+### System Theme Not Working
+1. Check `enableSystem` is true in ThemeProvider
+2. Verify browser supports `prefers-color-scheme`
+3. Test in different system theme settings

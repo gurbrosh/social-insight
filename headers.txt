@@ -1,0 +1,14 @@
+HTTP/1.1 302 Found
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-pathname: /api/auth/callback/credentials
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+location: http://localhost:3000/api/auth/signin?csrf=true
+set-cookie: next-auth.csrf-token=67fd962c9e2dd067559bf37e9993bfc1ff7f49492fdc5ac6471f0a2bcf671f93%7C0938829f4e74c259ba02783fd8d6615eac724bd8ed2325fd0ddbe9a84c0dba13; Path=/; HttpOnly; SameSite=Lax
+set-cookie: next-auth.callback-url=http%3A%2F%2Flocalhost%3A3000%2Fadmin%2Fscrapers; Path=/; HttpOnly; SameSite=Lax
+Date: Wed, 12 Nov 2025 00:59:11 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+

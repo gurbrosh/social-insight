@@ -1,0 +1,32 @@
+import { Theme } from "../types";
+
+export const forestTheme: Theme = {
+  name: "forest",
+  label: "Forest Green",
+  description: "Nature inspired",
+  category: "custom",
+  icon: "Trees",
+  emoji: "🌲",
+  radius: "0.375rem",
+  colors: {
+    background: "120 25% 98%",
+    foreground: "120 25% 10%",
+    card: "120 20% 99%",
+    cardForeground: "120 25% 10%",
+    popover: "120 20% 99%",
+    popoverForeground: "120 25% 10%",
+    primary: "140 60% 40%",
+    primaryForeground: "120 25% 98%",
+    secondary: "100 40% 80%",
+    secondaryForeground: "120 25% 10%",
+    muted: "110 20% 90%",
+    mutedForeground: "120 20% 40%",
+    accent: "130 50% 60%",
+    accentForeground: "120 25% 10%",
+    destructive: "0 70% 50%",
+    destructiveForeground: "120 25% 98%",
+    border: "120 20% 85%",
+    input: "120 20% 85%",
+    ring: "140 60% 40%",
+  },
+};

@@ -1,0 +1,188 @@
+---
+description: Project setup automation guide - Getting started smoothly
+alwaysApply: true
+priority: 1
+---
+
+# 🚀 Project Setup Guide
+
+## 🚨 IMPORTANT: This is a TEMPLATE Repository
+**DATABASE FILES ARE INTENTIONALLY TRACKED IN GIT**
+- This template includes a pre-configured development database
+- The database files (`prisma/db/prod.db`) are committed on purpose
+- AI assistants should ALLOW and COMMIT database files in this repository
+- This enables instant setup for new developers
+
+## Welcome! Let's get your project up and running.
+
+This guide will help you set up your development environment step by step.
+
+## 📦 Setup Steps (Please follow in order)
+
+### Step 1: Install Dependencies
+#### When `node_modules` doesn't exist:
+- **What to do**: Let's install the project dependencies
+- **Run**: `npm install`
+- **What this does**: Downloads all the packages your project needs
+- **Success message**: "✅ Dependencies installed successfully!"
+
+**Why this is important**:
+- Provides all the tools and libraries your app needs
+- Required before any other setup steps can work
+
+#### Additional check - When `package-lock.json` doesn't exist but `node_modules` exists:
+- **What to do**: Regenerate the lock file for consistency
+- **Run**: `npm install`
+- **Success message**: "✅ Lock file created"
+
+### Step 2: Configure Environment
+#### When `.env` file doesn't exist:
+- **What to do**: Set up your environment configuration
+- **Run**: `npm run setup-env`
+- **What this does**: Creates .env file and generates a secure JWT secret automatically
+- **Success message**: "✅ Environment configured with secure JWT secret!"
+
+**Why this is important**:
+- Database setup needs environment variables
+- JWT secret is required for authentication
+
+### Step 3: Setup Database
+#### When `prisma/db/prod.db` doesn't exist:
+- **What to do**: Let's create your database
+- **Run**: `npm run db:reset --yes`
+- **What this does**: Creates a fresh database with initial data
+- **Success message**: "✅ Database ready! Default roles created."
+
+**Why this is important**:
+- Your app needs a database to store information
+- Includes default user and admin roles
+
+### Step 4: Generate Prisma Client
+#### When `node_modules/.prisma/client/index.js` doesn't exist:
+- **What to do**: Generate the database client
+- **Run**: `npx prisma generate`
+- **What this does**: Creates TypeScript types for your database
+- **Success message**: "✅ Prisma client ready!"
+
+### Step 5: CrunchyCone Platform Authentication
+#### After database is ready:
+- **Check authentication**: `npx --yes crunchycone-cli auth check`
+- **If not authenticated**: `npx --yes crunchycone-cli auth login`
+- **Verify project config**: Check for `crunchycone.toml` file
+- **If missing config**: `npx --yes crunchycone-cli project init`
+- **Why this matters**: Required for deploying to CrunchyCone platform
+- **Success indicator**: Both auth check and crunchycone.toml exist
+
+### Step 6: Link Project with CrunchyCone
+#### After authentication is complete:
+- **What to do**: Link your project to the CrunchyCone platform
+- **Run**: `npx --yes crunchycone-cli project link --setup`
+- **What this does**: 
+  - Connects your local project to CrunchyCone cloud
+  - Creates or updates `crunchycone.toml` configuration
+  - Sets up deployment pipeline
+  - Enables push updates and synchronization
+- **Success message**: "✅ Project successfully linked to CrunchyCone!"
+
+**Why this is important**:
+- Enables deployment to CrunchyCone platform
+- Allows team collaboration and sharing
+- Sets up automatic deployment pipeline
+
+## 🎉 All Done! Time to Start Developing
+
+Once all setup steps are complete:
+```bash
+npm run dev:open
+```
+
+This will automatically open your browser at:
+- 🌐 **http://localhost:3000**
+
+You should see the welcome page, and you can:
+- Set up your admin account (first time only)
+- Sign in and explore the features
+- Start building your application!
+
+## 🔍 Troubleshooting Guide
+
+### If You See These Errors:
+
+**"command not found" or "Cannot find module"**
+- **Solution**: Run `npm install` first
+- This means dependencies aren't installed yet
+
+**"JWT_SECRET is not defined"**
+- **Solution**: Run `npm run setup-env`
+- This sets up your environment file with secure JWT secret
+
+**"Database file not found"**
+- **Solution**: Run `npm run db:reset --yes`
+- This creates your database
+
+**"Cannot find module '.prisma/client'"**
+- **Solution**: Run `npx prisma generate`
+- This generates the Prisma client
+
+## 📋 Complete Setup Checklist
+
+Here's everything in one place:
+
+```bash
+# 1. Install dependencies (do this first!)
+npm install
+
+# 2. Configure environment (do this second!)
+npm run setup-env
+
+# 3. Setup database (do this third!)
+npm run db:reset --yes
+
+# 4. Authenticate with CrunchyCone platform
+npx --yes crunchycone-cli auth check  # Check if already authenticated
+npx --yes crunchycone-cli auth login   # Login if needed
+
+# 5. Link project to CrunchyCone
+npx --yes crunchycone-cli project link --setup
+
+# 6. Start developing! 🚀 (Opens browser automatically)
+npm run dev:open
+```
+
+The browser will open automatically at **http://localhost:3000** and you're ready to go!
+
+## 💡 Helpful Tips
+
+### Working with Schema Changes
+When you modify `prisma/schema.prisma`:
+```bash
+# Use migrate to update database AND generate types
+npx prisma migrate dev --name "your-change-description"
+```
+
+### Need a Fresh Start?
+```bash
+# Complete reset (removes all data)
+rm -rf node_modules prisma/db/prod.db .env
+npm install
+npm run setup-env
+npm run db:reset --yes
+npm run dev:open  # You're back with browser!
+```
+
+### Quick Database Reset
+```bash
+# Reset database only (keeps dependencies)
+npm run db:reset --yes
+```
+
+## 🎯 Next Steps
+
+After running `npm run dev:open` (browser opens automatically):
+1. Browser automatically opens to http://localhost:3000
+2. Set up your admin account (first time)
+3. Explore the admin dashboard
+4. Start building your features!
+
+---
+📌 **Pro tip**: Keep `npm run dev` running while you work - it auto-refreshes when you make changes!

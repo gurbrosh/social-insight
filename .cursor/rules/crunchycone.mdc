@@ -1,0 +1,175 @@
+---
+description: CrunchyCone platform integration and deployment
+globs: crunchycone.toml,*crunchycone*
+alwaysApply: false
+---
+
+# 🚀 CrunchyCone Platform Integration
+
+## ⚡ When This Applies
+
+This guide only applies when:
+- A `crunchycone.toml` file exists in the project root, OR
+- User explicitly mentions CrunchyCone functionality, deployment, or platform integration
+- User asks about `npx crunchycone-cli` commands
+
+**For projects without `crunchycone.toml`**: These steps are not needed during setup.
+
+## 🔧 Enable CrunchyCone Integration (Optional)
+
+To add CrunchyCone platform integration to an existing project:
+
+```bash
+# Initialize CrunchyCone project configuration
+npx --yes crunchycone-cli project init
+
+# Authenticate with the platform
+npx --yes crunchycone-cli auth login
+
+# Link project to platform
+npx --yes crunchycone-cli project link --setup
+```
+
+This creates a `crunchycone.toml` file and enables platform features.
+
+## 🛠️ Initial Setup (Only if crunchycone.toml exists)
+
+### During Project Setup
+If a `crunchycone.toml` file is present during project setup, add these steps AFTER database setup:
+
+1. **Check CrunchyCone authentication status**
+2. **Authenticate if needed** 
+3. **Verify project configuration**
+
+This ensures the project is ready for CrunchyCone platform deployment.
+
+## 🔐 Authentication Setup
+
+### Authentication Required for Platform Features
+
+**ONLY run these steps if `crunchycone.toml` exists in the project root.**
+
+After database setup is complete, we need to ensure you're authenticated with the CrunchyCone platform to enable deployment and updates.
+
+## 📋 Authentication Check Steps
+
+### Step 1: Check Authentication Status
+#### When database setup is complete AND crunchycone.toml exists:
+- **Check if authenticated**: Run `npx --yes crunchycone-cli auth check`
+- **Look for**: "✅ Authenticated" message
+- **If not authenticated**: Continue to Step 2
+
+### Step 2: Perform Authentication
+#### When not authenticated to CrunchyCone:
+- **What to do**: Sign in to the CrunchyCone platform
+- **Run**: `npx --yes crunchycone-cli auth login`
+- **What this does**: 
+  - Opens browser for secure authentication
+  - Stores credentials locally for future use
+  - Enables push updates to CrunchyCone system
+- **Success indicator**: "✅ Successfully authenticated" message
+
+### Step 3: Verify Project Configuration
+#### After authentication:
+- **Check for**: `crunchycone.toml` file in project root
+- **If missing**: Initialize project with `npx --yes crunchycone-cli project init`
+- **What this file contains**:
+  - Project ID and configuration
+  - Deployment settings
+  - Platform-specific metadata
+
+## 🎯 Complete Authentication Checklist
+
+```bash
+# 1. Check if authenticated
+npx --yes crunchycone-cli auth check
+
+# 2. If not authenticated, login
+npx --yes crunchycone-cli auth login
+
+# 3. Verify project config exists
+ls crunchycone.toml
+
+# 4. If no config, initialize project
+npx --yes crunchycone-cli project init
+
+# 5. Link project to platform
+npx --yes crunchycone-cli project link --setup
+```
+
+## ⚡ Quick Status Check
+
+To verify everything is set up correctly:
+```bash
+npx --yes crunchycone-cli auth check && ls crunchycone.toml
+```
+
+Both should succeed for full platform integration.
+
+## 📊 Build Monitoring & Debugging
+
+### Get Latest Builds
+Check recent build status and history:
+```bash
+npx --yes crunchycone-cli project builds
+```
+
+This shows:
+- Build IDs with status (success, failed, in-progress)
+- Build timestamps and durations
+- Branch/commit information
+
+### Examine Build Logs
+When a build fails, get detailed logs for debugging:
+```bash
+npx --yes crunchycone-cli project builds log <buildId>
+```
+
+**Usage**:
+1. Run `npx --yes crunchycone-cli project builds` to see recent builds
+2. Copy the build ID of the failed build
+3. Run `npx --yes crunchycone-cli project builds log <buildId>` to see full logs
+4. Review error messages, dependency issues, or configuration problems
+
+**Common build failure causes**:
+- Missing environment variables
+- Dependency installation failures
+- TypeScript compilation errors
+- Database migration issues
+- Authentication/configuration problems
+
+## 🔍 Troubleshooting
+
+### "Command not found" Error
+- **Solution**: Run `npm install` to ensure crunchycone-cli is installed
+- The CLI is included as a dev dependency
+
+### "Not authenticated" After Login
+- **Solution**: Try `npx --yes crunchycone-cli auth logout` then `npx --yes crunchycone-cli auth login` again
+- Check browser opened correctly during login
+
+### Missing crunchycone.toml
+- **Solution**: Run `npx --yes crunchycone-cli project init`
+- This creates the project configuration file
+
+### "Invalid credentials" Error
+- **Solution**: Ensure you have a CrunchyCone account
+- Visit https://crunchycone.com to sign up if needed
+
+## 📌 Important Notes
+
+- **Authentication is required** for pushing updates to CrunchyCone platform
+- **Credentials are stored locally** in your home directory
+- **Project config (crunchycone.toml)** should be committed to Git
+- **Authentication persists** across terminal sessions
+
+## 🚀 What Happens After Authentication
+
+Once authenticated with a valid `crunchycone.toml`:
+1. You can deploy your project to CrunchyCone platform
+2. Push updates directly from your development environment
+3. Access platform-specific features and integrations
+4. Sync project settings with the cloud
+
+---
+💡 **Pro tip**: Add `crunchycone.toml` to your Git repository to share project configuration with your team!

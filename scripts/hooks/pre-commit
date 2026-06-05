@@ -1,0 +1,37 @@
+#!/bin/sh
+# Pre-commit hook to ensure code quality
+
+echo "🔍 Running pre-commit checks..."
+
+# Check for missing force-dynamic exports
+echo "🔍 Checking force-dynamic exports..."
+if ! ./scripts/hooks/check-force-dynamic; then
+    echo ""
+    echo "❌ ERROR: Missing force-dynamic exports!"
+    echo "Please add 'export const dynamic = \"force-dynamic\";' to all pages and API routes."
+    echo "See .cursor/rules/12-CRITICAL-force-dynamic.mdc for details."
+    exit 1
+fi
+
+# Run linting
+echo "🔧 Running linter..."
+if ! npm run lint; then
+    echo ""
+    echo "❌ ERROR: Linting failed!"
+    echo "Please fix the linting errors before committing."
+    echo "You can run 'npm run lint' to see the errors."
+    exit 1
+fi
+
+# Run build to ensure everything compiles
+echo "🏗️  Running build..."
+if ! npm run build; then
+    echo ""
+    echo "❌ ERROR: Build failed!"
+    echo "Please fix the build errors before committing."
+    echo "You can run 'npm run build' to see the errors."
+    exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"
+exit 0

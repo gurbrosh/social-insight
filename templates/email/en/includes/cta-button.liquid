@@ -1,0 +1,13 @@
+<!-- Call-to-Action Button Component -->
+<mj-button
+  href="{{ url }}"
+  background-color="{{ backgroundColor | default: '#000000' }}"
+  color="{{ textColor | default: '#ffffff' }}"
+  font-size="{{ fontSize | default: '16px' }}"
+  font-weight="bold"
+  border-radius="6px"
+  padding="{{ padding | default: '15px 30px' }}"
+  align="center"
+>
+  {{ text | default: "Click Here" }}
+</mj-button>

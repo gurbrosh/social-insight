@@ -1,0 +1,363 @@
+---
+description: Environment variables and API keys management guide
+globs: ["**/.env*", "**/environment*", "**/config*"]
+priority: 9
+---
+
+# 🔐 Environment Variables & API Keys Management
+
+## 🚨 CRITICAL SECURITY RULES
+
+### Never Commit Secrets
+- **NEVER** commit API keys, passwords, or secrets to git
+- **NEVER** hardcode credentials in source code
+- **NEVER** log sensitive environment variables
+- **ALWAYS** use `.env` files for local development
+- **ALWAYS** use secure secret management for production
+
+## 📁 Environment File Structure
+
+### File Types and Usage
+- **`.env`** - Local development (git-ignored)
+- **`.env.example`** - Template with dummy values (git-tracked)
+- **`.env.local`** - Next.js local overrides (git-ignored)
+- **`.env.production`** - Production template (git-tracked, no real values)
+
+### File Location
+- Place all `.env*` files in project root (same level as `package.json`)
+- Never place environment files in subdirectories
+
+## 🔑 API Key & Secret Management
+
+### Secret Generation Rules
+```javascript
+// AUTH_SECRET - 32 bytes (64 hex chars)
+const authSecret = crypto.randomBytes(32).toString("hex");
+
+// Database passwords - 16+ chars mixed
+const dbPassword = crypto.randomBytes(16).toString("base64");
+
+// API keys - provider-specific format
+// Always use provider's key generation tools
+```
+
+### Required Environment Variables
+
+#### Core Application
+```bash
+# Authentication (REQUIRED)
+AUTH_SECRET="64-character-hex-string"           # crypto.randomBytes(32).toString("hex")
+AUTH_URL="http://localhost:3000"               # Your app URL
+
+# Database (REQUIRED) — this template: single SQLite file at prisma/db/prod.db
+DATABASE_URL="file:./db/prod.db"       # SQLite (see .env.example; use PostgreSQL/MySQL URL in production if needed)
+
+# Email (REQUIRED)
+EMAIL_FROM="noreply@yourdomain.com"            # Sender email
+NEXT_PUBLIC_APP_URL="http://localhost:3000"    # Public app URL
+```
+
+#### OAuth Providers (Optional)
+```bash
+# Google OAuth
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
+# GitHub OAuth  
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
+```
+
+#### Storage Providers (Optional)
+```bash
+# AWS S3
+CRUNCHYCONE_AWS_ACCESS_KEY_ID="your-aws-key"
+CRUNCHYCONE_AWS_SECRET_ACCESS_KEY="your-aws-secret"
+CRUNCHYCONE_AWS_REGION="us-east-1"
+CRUNCHYCONE_AWS_BUCKET="your-bucket"
+
+# DigitalOcean Spaces
+CRUNCHYCONE_DO_ACCESS_KEY_ID="your-do-key"
+CRUNCHYCONE_DO_SECRET_ACCESS_KEY="your-do-secret"
+```
+
+### Value Format Requirements
+
+#### String Values
+- Always wrap in double quotes: `KEY="value"`
+- Escape special characters: `KEY="value with \"quotes\""`
+- No trailing spaces: `KEY="value"` not `KEY="value" `
+
+#### Boolean Values
+- Use strings: `ENABLED="true"` not `ENABLED=true`
+- Accepted values: `"true"`, `"false"`, `"1"`, `"0"`
+
+#### Numeric Values  
+- Use strings: `PORT="3000"` not `PORT=3000`
+- Always quote to prevent parsing issues
+
+#### URLs and Paths
+- Full URLs: `URL="https://api.example.com"`
+- Relative paths: `PATH="./relative/path"`
+- Absolute paths: `PATH="/absolute/path"`
+
+## 🛠️ Implementation Patterns
+
+### Adding New Environment Variables
+
+1. **Update `.env.example`** first with dummy value:
+```bash
+# New feature configuration (environment variable)
+NEW_FEATURE_ENABLED="true"
+DEBUG_MODE="false"
+
+# New API integration (secret)
+NEW_API_KEY="your-api-key-here"
+```
+
+2. **Document in CLAUDE.md** under Environment Variables section
+
+3. **Add validation** in config files:
+```typescript
+// lib/config.ts
+export const config = {
+  // Environment variables (non-sensitive configuration)
+  newFeatureEnabled: process.env.NEW_FEATURE_ENABLED === "true",
+  debugMode: process.env.DEBUG_MODE === "true",
+  
+  // Secrets (sensitive data)
+  newApiKey: process.env.NEW_API_KEY || "",
+} as const;
+
+// Validate required secrets
+if (!config.newApiKey) {
+  throw new Error("NEW_API_KEY secret is required");
+}
+```
+
+4. **Update setup scripts** if needed:
+```javascript
+// scripts/reset.js - add to environment setup
+```
+
+### Reading Environment Variables
+
+#### Server-side (Preferred)
+```typescript
+// Environment variables (non-sensitive)
+const nodeEnv = process.env.NODE_ENV;
+const debugMode = process.env.DEBUG_MODE === "true";
+
+// Secrets (sensitive data)
+const apiKey = process.env.API_KEY;
+if (!apiKey) throw new Error("API_KEY secret required");
+```
+
+#### Client-side (Public only)
+```typescript
+// Only for NEXT_PUBLIC_ prefixed vars
+const publicUrl = process.env.NEXT_PUBLIC_APP_URL;
+```
+
+### Environment Variable Validation
+
+#### At Application Startup
+```typescript
+// lib/env-validation.ts
+const requiredEnvVars = [
+  "AUTH_SECRET",
+  "DATABASE_URL", 
+  "EMAIL_FROM",
+  "NEXT_PUBLIC_APP_URL"
+] as const;
+
+requiredEnvVars.forEach(envVar => {
+  if (!process.env[envVar]) {
+    throw new Error(`Missing required environment variable: ${envVar}`);
+  }
+});
+```
+
+#### In Components/Functions
+```typescript
+// Always validate before use
+function useApiKey() {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    throw new Error("API_KEY environment variable is not configured");
+  }
+  return apiKey;
+}
+```
+
+## 🔄 Setup Automation
+
+### Automatic Environment Setup
+- Use `npm run setup-env` to generate `.env` from `.env.example`
+- Auto-generate secure secrets (AUTH_SECRET, etc.)
+- Detect and configure provider settings when authenticated
+
+### Manual Setup Steps
+1. Copy `.env.example` to `.env`
+2. Replace all placeholder values with real credentials
+3. Generate secure AUTH_SECRET: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+4. Test with `npm run dev`
+
+## 🚫 Anti-patterns to AVOID
+
+❌ **DON'T** hardcode API keys:
+```typescript
+// BAD
+const apiKey = "sk-1234567890abcdef";
+
+// GOOD  
+const apiKey = process.env.API_KEY;
+```
+
+❌ **DON'T** commit `.env` files:
+```bash
+# BAD - in git
+.env
+
+# GOOD - in .gitignore
+.env
+.env.local
+```
+
+❌ **DON'T** use weak secrets:
+```bash
+# BAD
+AUTH_SECRET="password123"
+
+# GOOD
+AUTH_SECRET="a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+```
+
+❌ **DON'T** log secrets:
+```typescript
+// BAD
+console.log("API Key:", process.env.API_KEY);
+
+// GOOD
+console.log("API Key:", process.env.API_KEY ? "✓ configured" : "✗ missing");
+```
+
+## 🔒 Production Considerations
+
+### Secret Management Services
+
+#### CrunchyCone Hosting (Default/Recommended)
+When using CrunchyCone for hosting, use the `crunchycone-cli` for all environment variable management:
+
+```bash
+# Platform Environment Variables (cloud-managed for project)
+crunchycone-cli env list                             # List all platform env vars
+crunchycone-cli env get NODE_ENV                    # Get specific platform env var
+crunchycone-cli env set NODE_ENV production         # Set platform env var (optional value)
+crunchycone-cli env unset UNUSED_FEATURE_FLAG       # Remove platform env var
+
+# Project Secrets (cloud-managed, write-only for security)
+crunchycone-cli secrets list                        # List secret names (values masked)
+crunchycone-cli secrets set AUTH_SECRET hex-string  # Set project secret (optional value)
+crunchycone-cli secrets set-batch API_KEY=sk-123 DB_PASS=pass  # Set multiple secrets
+crunchycone-cli secrets delete OLD_API_KEY          # Delete project secret
+```
+
+**Important Notes:**
+- **Both commands manage cloud platform configuration, NOT local `.env` files**
+- **`crunchycone-cli env`**: Platform environment variables for non-sensitive config (NODE_ENV, feature flags, etc.)
+- **`crunchycone-cli secrets`**: Project secrets for sensitive data (API keys, passwords, tokens) - write-only for security
+- **Optional values**: Both `set` commands accept optional `[value]` parameter (can prompt if not provided)
+- **Auto-detection**: Project ID auto-detected from `crunchycone.toml` if present
+- **Local `.env` files**: Must be managed manually or with standard tools
+
+**CrunchyCone CLI Benefits:**
+- **Platform Integration**: `env` manages platform environment variables for the project
+- **Security Separation**: Non-sensitive config via `env`, sensitive data via `secrets`
+- **Write-Only Secrets**: Secret values never displayed, only names are listed
+- **Batch Operations**: Set multiple secrets at once with `set-batch`
+- **Auto-Detection**: Project ID and API URL auto-detected from `crunchycone.toml`
+- **Optional Values**: Commands can prompt for values if not provided on command line
+
+#### Other Hosting Providers
+- **Vercel**: Use Environment Variables dashboard
+- **Railway**: Use Environment Variables panel  
+- **Render**: Use Environment Variables settings
+- **AWS**: Use Systems Manager Parameter Store
+- **Docker**: Use secrets or env files (not in image)
+
+### Security Best Practices
+1. **Rotate secrets regularly** (especially API keys)
+2. **Use least-privilege access** for service accounts
+3. **Monitor for leaked secrets** in logs and repositories
+4. **Encrypt secrets at rest** in production systems
+5. **Use different secrets** for each environment (dev/staging/prod)
+
+### Environment-Specific Values
+```bash
+# Development
+DATABASE_URL="file:./db/prod.db"
+AUTH_URL="http://localhost:3000"
+
+# Production  
+DATABASE_URL="postgresql://user:pass@host/db"
+AUTH_URL="https://yourapp.com"
+```
+
+## 📋 Quick Reference
+
+### Commands
+
+#### Local Development
+```bash
+# Setup environment
+npm run setup-env
+
+# Generate random secret
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+# Check environment
+npm run dev  # Will show missing required variables
+```
+
+#### CrunchyCone Production Management
+```bash
+# Authentication check
+crunchycone-cli auth check
+
+# Platform environment variable management
+crunchycone-cli env list                         # List all platform env vars
+crunchycone-cli env get NODE_ENV                # Get specific platform env var
+crunchycone-cli env set NODE_ENV production     # Set platform env var (optional value)
+crunchycone-cli env unset OLD_FEATURE_FLAG      # Remove platform env var
+
+# Project secrets management (cloud-managed)
+crunchycone-cli secrets list                    # List secret names (values masked)
+crunchycone-cli secrets set AUTH_SECRET hex     # Set project secret (optional value)
+crunchycone-cli secrets set-batch API_KEY=sk-123 DB_PASS=pass  # Set multiple
+crunchycone-cli secrets delete OLD_TOKEN       # Delete project secret
+
+# Project management
+crunchycone-cli project status             # Check project status
+crunchycone-cli deploy                     # Deploy with env vars
+```
+
+### File Checklist
+
+#### Local Development
+- [ ] `.env` exists and populated (local only)
+- [ ] `.env.example` updated with new variables
+- [ ] `.gitignore` excludes `.env` files
+- [ ] Required variables documented in CLAUDE.md
+- [ ] Validation added for critical variables
+
+#### Production Deployment
+- [ ] **CrunchyCone (Recommended)**: 
+  - [ ] Local development: Manual `.env` file management
+  - [ ] Platform env vars: `crunchycone-cli env` for non-sensitive settings
+  - [ ] Project secrets: `crunchycone-cli secrets` for sensitive data
+  - [ ] Authentication verified: `crunchycone-cli auth check`
+  - [ ] Project ID auto-detected from `crunchycone.toml`
+- [ ] **Other Platforms**: Production secrets configured in deployment platform
+- [ ] All required variables present in production environment
+- [ ] Production values differ from development (security)

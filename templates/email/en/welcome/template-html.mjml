@@ -1,0 +1,77 @@
+<!-- Description: Welcome email for new users after successful signup -->
+<mjml>
+  <mj-head>
+    <mj-title>Welcome to {{ appName }}!</mj-title>
+    <mj-preview>Welcome to {{ appName }}! Your account is ready to go.</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="'Helvetica Neue', Arial, sans-serif" />
+      <mj-text color="#333333" font-size="16px" line-height="24px" />
+      <mj-section background-color="#ffffff" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .brand-primary {
+        color: #000000 !important;
+      }
+      .text-muted {
+        color: #666666 !important;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#f5f5f5">
+    {% include 'header' %}
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="40px 30px">
+      <mj-column>
+        {% assign text = "🎉 Welcome to " | append: appName | append: "!" %}
+        {% include 'heading' %}
+
+        <mj-text font-size="16px" color="#333333" line-height="24px" padding-bottom="20px">
+          Hi {% if userName %}{{ userName }}{% else %}there{% endif %},
+        </mj-text>
+
+        <mj-text font-size="16px" color="#333333" line-height="24px" padding-bottom="30px">
+          Your {{ appName }} account is now ready! We're excited to have you on board and can't wait
+          to see what you'll build.
+        </mj-text>
+
+        {% if dashboardUrl %}
+        {% assign url = dashboardUrl %}
+        {% assign text = "Get Started" %}
+        {% include 'cta-button' %}
+        {% endif %}
+
+        <mj-spacer height="30px" />
+
+        <mj-text
+          font-size="16px"
+          color="#333333"
+          line-height="24px"
+          font-weight="bold"
+          padding-bottom="15px"
+        >
+          What's next?
+        </mj-text>
+
+        <mj-text font-size="16px" color="#333333" line-height="24px" padding-bottom="10px">
+          • Explore your dashboard and settings
+        </mj-text>
+        <mj-text font-size="16px" color="#333333" line-height="24px" padding-bottom="10px">
+          • Set up your profile
+        </mj-text>
+        <mj-text font-size="16px" color="#333333" line-height="24px" padding-bottom="10px">
+          • Check out our documentation and guides
+        </mj-text>
+
+        {% include 'divider' %}
+
+        <mj-text font-size="14px" color="#666666" line-height="20px">
+          If you have any questions or need help getting started, don't hesitate to reach out to our
+          support team.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    {% include 'footer' %}
+  </mj-body>
+</mjml>

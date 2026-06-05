@@ -1,0 +1,147 @@
+# Database Migration Rules
+
+This file contains critical rules for handling Prisma schema changes and database migrations.
+
+## Pattern Detection
+
+When files matching these patterns are modified:
+- `prisma/schema.prisma`
+- `prisma/*.prisma`
+
+## Required Actions
+
+### When schema.prisma is modified
+
+You MUST immediately:
+
+1. Generate a Prisma migration:
+```bash
+npx prisma migrate dev --name <migration_name>
+```
+
+2. Use descriptive migration names:
+- ✅ Good: `add_user_preferences_table`, `add_email_verification_fields`, `remove_unused_profile_field`
+- ❌ Bad: `update`, `fix`, `change`, `migration1`
+
+3. After migration generation:
+- Review the generated SQL in `prisma/migrations/[timestamp]_[name]/migration.sql`
+- Ensure the migration is correct before proceeding
+- Test locally that the migration applies cleanly
+
+4. Commit both files to Git:
+```bash
+git add prisma/schema.prisma prisma/migrations/
+git commit -m "Add migration: <migration_name>"
+```
+
+## Migration Patterns by Change Type
+
+### Adding a new model
+```bash
+# After adding model to schema.prisma
+npx prisma migrate dev --name add_<model_name>_table
+```
+
+### Adding fields to existing model
+```bash
+# After adding fields
+npx prisma migrate dev --name add_<field_names>_to_<model_name>
+```
+
+### Removing fields (DANGEROUS - check for usage first!)
+```bash
+# Ensure no code references the field
+npx prisma migrate dev --name remove_<field_name>_from_<model_name>
+```
+
+### Adding indexes
+```bash
+npx prisma migrate dev --name add_index_to_<model_name>_<field_name>
+```
+
+### Modifying field types
+```bash
+npx prisma migrate dev --name change_<field_name>_type_in_<model_name>
+```
+
+## Common Mistakes to Prevent
+
+### ❌ NEVER do this after schema changes:
+```bash
+# WRONG - This only generates types, not migrations!
+npx prisma generate
+
+# WRONG - This bypasses migration history!
+npx prisma db push
+```
+
+### ✅ ALWAYS do this:
+```bash
+# CORRECT - Creates migration AND generates types
+npx prisma migrate dev --name descriptive_name
+```
+
+## Special Considerations
+
+### Turso/LibSQL Databases
+- Migrations are SQLite-compatible
+- Applied automatically on Docker container startup
+- Check `_prisma_migrations` table for applied migrations
+- Use `libsql://` connection strings with TURSO_AUTH_TOKEN
+
+### Production Deployments
+- Migrations MUST be in Git before deployment
+- Docker containers apply migrations automatically via `turso-migrate.js`
+- Never use `migrate reset` in production
+- Always test migrations locally first
+
+### Breaking Changes
+Before removing fields or models:
+1. Search entire codebase for usage
+2. Deploy code that doesn't use the field
+3. Then deploy migration to remove field
+4. This prevents runtime errors
+
+## Emergency Procedures
+
+### If migrations are out of sync in development:
+```bash
+# Reset and reapply all migrations
+npx prisma migrate reset
+```
+
+### If production migration fails:
+1. DO NOT use migrate reset
+2. Check container logs for specific error
+3. May need to manually fix via SQL
+4. Contact team lead immediately
+
+## Validation Checklist
+
+Before committing schema changes:
+- [ ] Created migration with `npx prisma migrate dev --name <name>`
+- [ ] Reviewed generated SQL file
+- [ ] Migration name is descriptive
+- [ ] Tested migration applies cleanly
+- [ ] No code references removed fields
+- [ ] Committed both schema.prisma AND migrations folder
+- [ ] Did NOT use `prisma generate` or `db push` alone
+
+## File Dependencies
+
+When `prisma/schema.prisma` changes, these files may need updates:
+- `prisma/migrations/*` - New migration folder
+- `prisma/seed.ts` - If new models need seed data
+- `lib/prisma.ts` - If new models need special handling
+- Type definitions will auto-update via migration command
+
+## Automated Workflow
+
+The Docker deployment automatically:
+1. Reads migrations from `prisma/migrations/`
+2. Checks `_prisma_migrations` table for history
+3. Applies only new migrations
+4. Records success/failure
+5. Seeds data if needed
+
+This ONLY works if migrations are committed to Git!

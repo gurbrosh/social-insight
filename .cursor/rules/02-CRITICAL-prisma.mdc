@@ -1,0 +1,217 @@
+---
+description: Database and Prisma Guide - Working with your database
+globs: ["prisma/schema.prisma", "prisma/**/*.ts", "**/*.ts", "**/*.tsx"]
+priority: 2
+---
+
+# 📚 Database & Prisma Guide
+
+## Working with Your Database Made Simple
+
+This guide helps you manage your database schema and migrations effectively.
+
+## 🎯 Quick Setup Check
+
+### Before Working with the Database:
+1. **Dependencies installed?** Check for `node_modules` folder
+   - If missing → Run: `npm install`
+2. **Environment configured?** Check for `.env` file
+   - If missing → Run: `npm run setup-env`
+3. **Database exists?** Check for `prisma/db/prod.db`
+   - If missing → Run: `npm run db:reset --yes`
+4. **Ready to code?** Start the dev server:
+   ```bash
+   npm run dev:open
+   ```
+   This will automatically open your browser at http://localhost:3000
+
+## 🔄 Schema Changes Made Simple
+
+### When You Modify `prisma/schema.prisma`:
+
+**The Right Way:**
+```bash
+# This single command does everything!
+npx prisma migrate dev --name "describe-your-changes"
+```
+
+This command will:
+- ✅ Update your database structure
+- ✅ Generate TypeScript types automatically
+- ✅ Keep everything synchronized
+
+**Example names for migrations:**
+- `add-user-profile-table`
+- `add-email-field-to-user`
+- `create-posts-model`
+- `add-indexes-for-performance`
+
+### Understanding the Process:
+
+```
+Did you change schema.prisma?
+├─ Yes → What kind of change?
+│   ├─ Added/modified fields or models?
+│   │   └─ Run: npx prisma migrate dev --name "description"
+│   └─ Just formatting or comments?
+│       └─ Run: npx prisma generate
+└─ No → Keep coding! 
+```
+
+## 🛠️ Common Scenarios & Solutions
+
+### Scenario: "I'm getting TypeScript errors about Prisma"
+**Solution**: Regenerate the Prisma client
+```bash
+npx prisma generate
+```
+
+### Scenario: "Table or column doesn't exist"
+**Solution**: Your database needs to be updated
+```bash
+npx prisma migrate dev --name "sync-changes"
+```
+
+### Scenario: "Cannot find module '.prisma/client'"
+**Solution**: Generate the Prisma client
+```bash
+npx prisma generate
+```
+
+### Scenario: "I want to see my database"
+**Solution**: Open Prisma Studio (visual database browser)
+```bash
+npm run db:studio
+```
+This opens a web interface at http://localhost:5555
+
+## 📝 Schema Best Practices
+
+### Every Model Should Include:
+```prisma
+model YourModel {
+  id         String    @id @default("")  // Auto-generated ULID
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?  // For soft deletes
+  
+  // Your custom fields here
+  name       String
+  // ... more fields
+}
+```
+
+### Important Import Pattern:
+```typescript
+// ✅ Correct - uses Client Extensions for ULIDs
+import { prisma } from '@/lib/prisma'
+
+// ❌ Avoid - bypasses ULID extension
+import { PrismaClient } from '@prisma/client'
+```
+
+### ULID Auto-Generation:
+- All model IDs are **automatically generated** using ULID (Universally Unique Lexicographically Sortable Identifier)
+- **26-character strings** that are sortable by creation time
+- **No manual ID generation needed** - the Client Extension handles it
+- Example ULID: `01JZK5AT1CBD1SBW5T3JQ60VPR`
+
+```typescript
+// ULIDs are generated automatically on create
+const user = await prisma.user.create({
+  data: {
+    email: "user@example.com",
+    // No need to set 'id' - ULID extension generates it
+  }
+});
+// user.id = "01JZK5AT1CBD1SBW5T3JQ60VPR"
+```
+
+## 🚀 Useful Commands Reference
+
+### Essential Database Commands:
+```bash
+# After changing schema - creates migration
+npx prisma migrate dev --name "your-description"
+
+# View your data in the browser
+npm run db:studio
+
+# Reset database with fresh data
+npm run db:reset
+
+# Just regenerate types (no schema changes)
+npx prisma generate
+
+# Start developing (opens browser automatically)
+npm run dev:open
+```
+
+## 💡 Pro Tips
+
+### Tip 1: Migration Naming
+Use clear, descriptive names:
+- ✅ Good: `add-user-profile-fields`
+- ❌ Avoid: `update` or `fix`
+
+### Tip 2: Check Before Committing
+Before committing schema changes:
+1. Run the migration locally
+2. Test that it works
+3. Commit both schema AND migration files
+
+### Tip 3: Soft Deletes
+Instead of deleting records:
+```typescript
+// Mark as deleted
+await prisma.user.update({
+  where: { id },
+  data: { deleted_at: new Date() }
+})
+
+// Query active records
+await prisma.user.findMany({
+  where: { deleted_at: null }
+})
+```
+
+## 🔧 Troubleshooting
+
+### If Migrations Get Complicated:
+```bash
+# Reset your local database (dev only!)
+npm run db:reset --yes
+```
+
+### If Types Don't Match:
+```bash
+# Regenerate everything
+npx prisma generate
+npx prisma db push  # Dev only - syncs without migration
+```
+
+### Starting Fresh:
+```bash
+# Complete database reset
+rm -f prisma/db/prod.db
+npm run db:reset --yes
+npm run dev:open  # Back to coding with browser!
+```
+
+## ✅ You're Doing Great When...
+
+- No TypeScript errors about database types
+- `npm run dev:open` starts without issues and opens browser
+- You can create, read, update, delete records
+- Prisma Studio shows your data correctly
+
+## 🎯 After Database Setup
+
+Once everything is working:
+```bash
+npm run dev:open
+```
+Browser will automatically open **http://localhost:3000** and start building!
+
+---
+💡 **Key takeaway**: When you change the schema, use `migrate dev`. It handles everything for you!
